@@ -214,7 +214,7 @@ Diese E-Mail wurde automatisch generiert.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "DIVE Demo Tour <onboarding@resend.dev>",
+        from: "DIVE Demo Tour <noreply@dive-demo-tour.eu>",
         to: [params.to],
         subject: `Anmeldungsbestätigung - ${params.eventTitle}`,
         html: htmlContent,

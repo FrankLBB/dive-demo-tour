@@ -26,7 +26,7 @@ export const events: Event[] = [
     country: "Deutschland",
     description: "Probetauchen, Beratung, Demonstrationen",
     longDescription: "Die Kick-off Veranstaltung markiert den Beginn einer spannenden europäischen Tour. In Hamburg präsentieren wir die neuesten Innovationen im Bereich der Unterwassertechnologie. Erwarten Sie spannende Keynotes, interaktive Demonstrationen und exklusive Einblicke in zukunftsweisende Projekte. Das Event bietet zudem hervorragende Networking-Möglichkeiten mit Branchenexperten, Forschern und Entwicklern aus ganz Europa.",
-    image: "https://images.unsplash.com/photo-1555881400-edfa57db45be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxldXJvcGVhbiUyMGNpdHklMjBoYXJib3J8ZW58MXx8fHwxNzY5NTMwMjE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    image: "/images/Hemmoor.jpg",
     attendees: 150,
     status: "confirmed",
     speakers: [],
