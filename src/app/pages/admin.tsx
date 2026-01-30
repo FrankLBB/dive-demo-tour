@@ -17,6 +17,8 @@ import {
   AlertCircle,
   LogOut,
   ArrowLeft,
+  Wrench,
+  Power,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { events } from "@/app/data/events";
@@ -44,6 +46,13 @@ export function Admin() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<string>("all");
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+
+  // Check maintenance mode on mount
+  useEffect(() => {
+    const maintenanceMode = localStorage.getItem("maintenanceMode") === "true";
+    setIsMaintenanceMode(maintenanceMode);
+  }, []);
 
   const checkAuthentication = async () => {
     const sessionToken = sessionStorage.getItem("adminSessionToken");
@@ -221,6 +230,18 @@ export function Admin() {
     setFilteredRegistrations([]);
   };
 
+  const toggleMaintenanceMode = () => {
+    const newMode = !isMaintenanceMode;
+    setIsMaintenanceMode(newMode);
+    localStorage.setItem("maintenanceMode", String(newMode));
+    
+    if (newMode) {
+      console.log("✅ Wartungsmodus aktiviert");
+    } else {
+      console.log("✅ Wartungsmodus deaktiviert");
+    }
+  };
+
   // Check authentication on mount
   useEffect(() => {
     checkAuthentication();
@@ -347,6 +368,121 @@ export function Admin() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Maintenance Mode Control */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-2xl mb-2">Wartungsmodus</h3>
+                  <p className="text-sm text-gray-600">
+                    Versetzen Sie die gesamte Website in den Wartungsmodus. Besucher sehen dann nur noch eine Wartungsseite.
+                  </p>
+                </div>
+                <Wrench className={`size-12 ${isMaintenanceMode ? 'text-orange-500' : 'text-gray-400'}`} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className={`rounded-xl p-6 border-2 ${
+                isMaintenanceMode 
+                  ? 'bg-orange-50 border-orange-300' 
+                  : 'bg-green-50 border-green-300'
+              }`}>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      isMaintenanceMode 
+                        ? 'bg-orange-100' 
+                        : 'bg-green-100'
+                    }`}>
+                      {isMaintenanceMode ? (
+                        <Wrench className="size-8 text-orange-600" />
+                      ) : (
+                        <Power className="size-8 text-green-600" />
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-semibold mb-2">
+                        {isMaintenanceMode ? (
+                          <span className="text-orange-900">⚠️ Wartungsmodus aktiv</span>
+                        ) : (
+                          <span className="text-green-900">✅ Website online</span>
+                        )}
+                      </h4>
+                      <p className="text-sm mb-3">
+                        {isMaintenanceMode ? (
+                          <span className="text-orange-800">
+                            Besucher sehen aktuell nur die Wartungsseite. Sie haben als Admin weiterhin vollen Zugriff.
+                          </span>
+                        ) : (
+                          <span className="text-green-800">
+                            Die Website ist für alle Besucher normal erreichbar. Alle Funktionen sind verfügbar.
+                          </span>
+                        )}
+                      </p>
+                      {isMaintenanceMode && (
+                        <div className="flex items-center gap-2 text-xs text-orange-700 bg-orange-100 rounded-lg px-3 py-2 inline-block">
+                          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>Admins können die Website weiterhin nutzen</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={toggleMaintenanceMode}
+                    size="lg"
+                    className={isMaintenanceMode 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-orange-500 hover:bg-orange-600'
+                    }
+                  >
+                    {isMaintenanceMode ? (
+                      <>
+                        <Power className="size-5 mr-2" />
+                        Website aktivieren
+                      </>
+                    ) : (
+                      <>
+                        <Wrench className="size-5 mr-2" />
+                        Wartung starten
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h5 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                  <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Wie funktioniert der Wartungsmodus?
+                </h5>
+                <ul className="text-sm text-blue-800 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span><strong>Aktiviert:</strong> Normale Besucher sehen nur die Wartungsseite mit Informationen</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span><strong>Admin-Zugang:</strong> Sie können sich weiterhin einloggen und haben vollen Zugriff</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span><strong>Anmeldungen:</strong> Während des Wartungsmodus sind keine Event-Anmeldungen möglich</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 mt-1">•</span>
+                    <span><strong>Deaktivieren:</strong> Klicken Sie auf "Website aktivieren" um die Website wieder freizugeben</span>
+                  </li>
+                </ul>
               </div>
             </CardContent>
           </Card>
