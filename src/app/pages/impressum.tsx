@@ -45,7 +45,9 @@ export function Impressum() {
               <p className="text-gray-700 leading-relaxed">
                 Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor Verbraucherschlichtungsstellen teilzunehmen.
 Wir sind seit 26.12.2015 Mitglied der Initiative "FairCommerce".
-Nähere Informationen hierzu finden Sie unter www.haendlerbund.de/faircommerce (https://www.haendlerbund.de/de/haendlerbund/interessenvertretung/faircommerce).
+Nähere Informationen hierzu finden Sie unter <br />
+                www.haendlerbund.de/faircommerce <br />
+                (https://www.haendlerbund.de/de/haendlerbund/interessenvertretung/faircommerce).
               </p>
             </section>
 
