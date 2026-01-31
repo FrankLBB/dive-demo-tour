@@ -143,15 +143,14 @@ export function MaintenancePage({ isAdmin, onAdminAccess }: MaintenancePageProps
                     </div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 mb-2">Administrator?</h4>
-                      <a href="/admin">
-                        <Button 
-                          variant="outline"
-                          className="border-gray-300 hover:bg-gray-100"
-                        >
-                          Zum Admin-Login
-                          <ArrowRight className="size-4 ml-2" />
-                        </Button>
-                      </a>
+                      <Button 
+                        variant="outline"
+                        className="border-gray-300 hover:bg-gray-100"
+                        onClick={() => window.location.href = '/admin'}
+                      >
+                        Zum Admin-Login
+                        <ArrowRight className="size-4 ml-2" />
+                      </Button>
                     </div>
                   </div>
                 </div>
