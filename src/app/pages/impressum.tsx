@@ -1,82 +1,51 @@
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
+import { PageHeader } from "@/app/components/page-header";
 
 export function Impressum() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-16">
-        <div className="container mx-auto px-4">
-          <Link to="/">
-            <Button
-              variant="outline"
-              className="mb-4 bg-white/10 text-white border-white/20 hover:bg-white/20"
-            >
-              <ArrowLeft className="mr-2 size-4" />
-              Zurück zur Übersicht
-            </Button>
-          </Link>
-          <h1 className="text-5xl mb-4">Impressum</h1>
-          <p className="text-xl text-blue-50">Rechtliche Informationen</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Impressum"
+        subtitle="Rechtliche Informationen"
+      >
+        <Link to="/">
+          <Button
+            variant="outline"
+            className="mb-4 bg-white/10 text-white border-white/20 hover:bg-white/20"
+          >
+            <ArrowLeft className="mr-2 size-4" />
+            Zurück zur Übersicht
+          </Button>
+        </Link>
+      </PageHeader>
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-8 space-y-8">
             <section>
-              <h2 className="text-3xl mb-4">Angaben gemäß § 5 TMG</h2>
+              <h2 className="text-3xl mb-4">Gesetzliche Anbieterkennung</h2>
               <p className="text-gray-700 leading-relaxed">
-                DIVE Demo Tour<br />
-                Musterstraße 123<br />
-                12345 Hamburg<br />
-                Deutschland
+                Upstream UG (haftungsbeschränkt)<br />
+                Robert-Bosch-Straße 5<br />
+                D-71093 Weil im Schönbuch<br />
+                vertr. d. d. Geschäftsführer Michael Spanky<br />
+                Telefon: 07157-9882473<br />
+                E-Mail: info@upstream-tec.de<br />
+                USt-IdNr.: DE300389727<br />
+                Wi-ID-Nr.: DE 62786246<br />
+                eingetragen im Handelsregister des Amtsgerichtes Stuttgart<br />
+                Handelsregisternummer HRB 752718
               </p>
             </section>
 
-            <section>
-              <h2 className="text-3xl mb-4">Kontakt</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Telefon: +49 (0) 40 123456-0<br />
-                E-Mail: info@dive-demo-tour.eu<br />
-                Web: <a href="https://dive-demo-tour.eu" className="text-blue-600 hover:underline">dive-demo-tour.eu</a>
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-3xl mb-4">Vertreten durch</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Dr. Maria Schmidt (Geschäftsführerin)<br />
-                Prof. Dr. Lars Müller (Wissenschaftlicher Leiter)
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-3xl mb-4">Registereintrag</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Eintragung im Vereinsregister<br />
-                Registergericht: Amtsgericht Hamburg<br />
-                Registernummer: VR 12345
-              </p>
-            </section>
-
-            <section>
+                        <section>
               <h2 className="text-3xl mb-4">EU-Streitschlichtung</h2>
               <p className="text-gray-700 leading-relaxed">
-                Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
-                <a href="https://ec.europa.eu/consumers/odr/" className="text-blue-600 hover:underline ml-1" target="_blank" rel="noopener noreferrer">
-                  https://ec.europa.eu/consumers/odr/
-                </a>
-                <br />
-                Unsere E-Mail-Adresse finden Sie oben im Impressum.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-3xl mb-4">Verbraucherstreitbeilegung/Universalschlichtungsstelle</h2>
-              <p className="text-gray-700 leading-relaxed">
-                Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer 
-                Verbraucherschlichtungsstelle teilzunehmen.
+                Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor Verbraucherschlichtungsstellen teilzunehmen.
+Wir sind seit 26.12.2015 Mitglied der Initiative "FairCommerce".
+Nähere Informationen hierzu finden Sie unter www.haendlerbund.de/faircommerce (https://www.haendlerbund.de/de/haendlerbund/interessenvertretung/faircommerce).
               </p>
             </section>
 

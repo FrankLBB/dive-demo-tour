@@ -1,0 +1,16 @@
+                  </div>
+                </div>
+
+                {/* Event Modules */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Event-Module</h3>
+                  <EventModuleSelector
+                    selectedModuleIds={formData.moduleIds}
+                    onChange={(moduleIds) =>
+                      setFormData({ ...formData, moduleIds })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Form Actions */}

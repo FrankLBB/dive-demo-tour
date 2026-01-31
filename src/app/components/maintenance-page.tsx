@@ -1,4 +1,4 @@
-import { Wrench, Mail, Globe, ArrowRight } from "lucide-react";
+import { Wrench, Mail, Globe, ArrowRight, LogIn } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 
 interface MaintenancePageProps {
@@ -31,7 +31,7 @@ export function MaintenancePage({ isAdmin, onAdminAccess }: MaintenancePageProps
               </h1>
               
               <p className="text-xl text-blue-100 font-medium">
-                DIVE Demo Tour
+                DIVE DEMO TOUR
               </p>
             </div>
           </div>
@@ -102,16 +102,6 @@ export function MaintenancePage({ isAdmin, onAdminAccess }: MaintenancePageProps
                   <Mail className="size-5 text-blue-600" />
                   <span className="text-gray-700 font-medium group-hover:text-blue-700">info@dive-demo-tour.eu</span>
                 </a>
-                
-                <a 
-                  href="https://dive-demo-tour.eu"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 p-4 bg-white rounded-xl hover:bg-blue-50 transition-colors border border-gray-200 hover:border-blue-300 group"
-                >
-                  <Globe className="size-5 text-blue-600" />
-                  <span className="text-gray-700 font-medium group-hover:text-blue-700">dive-demo-tour.eu</span>
-                </a>
               </div>
             </div>
 
@@ -142,6 +132,31 @@ export function MaintenancePage({ isAdmin, onAdminAccess }: MaintenancePageProps
                 </div>
               </div>
             )}
+
+            {/* Admin Login Link (if not logged in) */}
+            {!isAdmin && (
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <LogIn className="size-6 text-gray-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900 mb-2">Administrator?</h4>
+                      <a href="/admin">
+                        <Button 
+                          variant="outline"
+                          className="border-gray-300 hover:bg-gray-100"
+                        >
+                          Zum Admin-Login
+                          <ArrowRight className="size-4 ml-2" />
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -155,10 +170,10 @@ export function MaintenancePage({ isAdmin, onAdminAccess }: MaintenancePageProps
         {/* Logo/Branding */}
         <div className="text-center mt-8">
           <p className="text-gray-600 font-medium">
-            DIVE Demo Tour 2026
+            DIVE DEMO TOUR 2026
           </p>
           <p className="text-sm text-gray-500 mt-1">
-            Europas führende Tauchtechnologie-Tour
+            Test-Events für Tauch- und Wassersport
           </p>
         </div>
       </div>

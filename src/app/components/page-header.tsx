@@ -1,21 +1,20 @@
-import { Calendar, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
 interface HomepageSettings {
   logo: string | null;
-  headerTitle: string;
-  headerSubtitle: string;
-  backgroundImage: string | null;
   headerLogo: string | null;
 }
 
-export function Header() {
+interface PageHeaderProps {
+  title: string;
+  subtitle: string;
+  children?: React.ReactNode;
+}
+
+export function PageHeader({ title, subtitle, children }: PageHeaderProps) {
   const [settings, setSettings] = useState<HomepageSettings>({
     logo: null,
-    headerTitle: "DIVE DEMO TOUR",
-    headerSubtitle: "Test-Events für Taucher",
-    backgroundImage: null,
     headerLogo: null,
   });
 
@@ -36,11 +35,13 @@ export function Header() {
 
       if (response.ok) {
         const data = await response.json();
-        setSettings(data.settings);
+        setSettings({
+          logo: data.settings.logo,
+          headerLogo: data.settings.headerLogo,
+        });
       }
     } catch (err) {
       console.error("Error fetching homepage settings:", err);
-      // Use default settings on error
     }
   };
 
@@ -48,27 +49,28 @@ export function Header() {
     <header className="relative bg-white text-white overflow-hidden border-b-4 border-gray-900 shadow-lg">
       {/* Header Background Image */}
       {settings.logo && (
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('${settings.logo}')`,
           }}
         />
       )}
-      
+
       {/* Content */}
       <div className="container mx-auto px-4 py-16 relative z-10">
+        {/* Optional back button or other content */}
+        {children}
+        
         <div className="flex items-start justify-between gap-8">
           {/* Left: Text Content */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-5xl">{settings.headerTitle}</h1>
-            </div>
+            <h1 className="text-5xl mb-4">{title}</h1>
             <p className="text-xl text-blue-50 max-w-2xl">
-              {settings.headerSubtitle}
+              {subtitle}
             </p>
           </div>
-          
+
           {/* Right: Header Logo */}
           {settings.headerLogo && (
             <div className="flex-shrink-0">

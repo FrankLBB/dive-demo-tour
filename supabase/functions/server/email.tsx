@@ -1,3 +1,15 @@
+interface ModuleEmailParams {
+  to: string;
+  firstName: string;
+  lastName: string;
+  moduleTitle: string;
+  eventTitle: string;
+  eventDate: string;
+  eventCity: string;
+  eventCountry: string;
+  registrationId: string;
+}
+
 interface EmailParams {
   to: string;
   firstName: string;
@@ -30,12 +42,14 @@ interface AdminNotificationParams {
 }
 
 export async function sendConfirmationEmail(params: EmailParams): Promise<boolean> {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const apiKey = Deno.env.get("RESEND_API_KEY")?.trim();
 
-  if (!apiKey) {
-    console.error("RESEND_API_KEY environment variable is not set");
+  if (!apiKey || apiKey === "your-resend-api-key-here") {
+    console.warn("⚠️ RESEND_API_KEY is not configured - skipping confirmation email");
     return false;
   }
+
+  console.log("🔑 Using Resend API key:", apiKey.substring(0, 10) + "...");
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -43,7 +57,7 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anmeldungsbestätigung - DIVE Demo Tour</title>
+  <title>Eingangsbestätigung - DIVE DEMO TOUR</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -54,7 +68,7 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
           <tr>
             <td style="background: linear-gradient(to right, #2563eb, #06b6d4); padding: 40px 30px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">DIVE Demo Tour</h1>
-              <p style="margin: 10px 0 0 0; color: #e0f2fe; font-size: 16px;">Europas führende Tauchtechnologie-Tour</p>
+              <p style="margin: 10px 0 0 0; color: #e0f2fe; font-size: 16px;">Test-Events für Tauch- und Wassersport</p>
             </td>
           </tr>
           
@@ -79,7 +93,7 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
               </p>
               
               <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                vielen Dank für Ihre Anmeldung zur DIVE Demo Tour! Wir freuen uns, Sie bei unserem Event begrüßen zu dürfen.
+                Ihre Anmeldung zur DIVE DEMO TOUR ist bei uns eingegangen und wird nun bearbeitet.
               </p>
               
               <!-- Event Details Box -->
@@ -127,7 +141,7 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
               </table>
               
               <p style="margin: 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                Weitere Informationen zum Programm und Ablauf erhalten Sie in den kommenden Tagen per E-Mail.
+                Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
               </p>
               
               <p style="margin: 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
@@ -147,6 +161,228 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
                 <tr>
                   <td style="text-align: center;">
                     <a href="https://dive-demo-tour.eu" style="display: inline-block; padding: 14px 32px; background: linear-gradient(to right, #2563eb, #06b6d4); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                      Zur Website
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 20px 0 0 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Wir freuen uns auf Sie!<br>
+                Ihr Team von DIVE DEMO TOUR
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px;">
+                DIVE DEMO TOUR
+              </p>
+              <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                Diese E-Mail wurde automatisch generiert. Bitte nicht direkt antworten.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  const textContent = `
+DIVE DEMO TOUR - Eingangsbestätigung
+
+Hallo ${params.firstName} ${params.lastName},
+
+Ihre Anmeldung zur DIVE DEMO TOUR ist bei uns eingegangen und wird nun bearbeitet.
+
+Event-Details:
+- Event: ${params.eventTitle}
+- Datum: ${params.eventDate}
+- Ort: ${params.eventCity}, ${params.eventCountry}
+- Bestätigungs-ID: ${params.registrationId}
+
+Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
+
+Bei Fragen stehen wir Ihnen gerne zur Verfügung:
+📧 E-Mail: info@dive-demo-tour.eu
+🌐 Web: https://dive-demo-tour.eu
+
+Wir freuen uns auf Sie!
+Ihr Team von DIVE DEMO TOUR
+
+---
+DIVE DEMO TOUR
+Diese E-Mail wurde automatisch generiert.
+  `.trim();
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "DIVE Demo Tour <onboarding@resend.dev>",
+        to: params.to,
+        subject: `Anmeldungsbestätigung - ${params.eventTitle}`,
+        html: htmlContent,
+        text: textContent,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("Error sending email via Resend:", error);
+      return false;
+    }
+
+    const result = await response.json();
+    console.log("Email sent successfully:", result);
+    return true;
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    return false;
+  }
+}
+
+export async function sendModuleRegistrationEmail(params: ModuleEmailParams): Promise<boolean> {
+  return await sendModuleConfirmationEmail(params);
+}
+
+async function sendModuleConfirmationEmail(params: ModuleEmailParams): Promise<boolean> {
+  const apiKey = Deno.env.get("RESEND_API_KEY")?.trim();
+
+  if (!apiKey || apiKey === "your-resend-api-key-here") {
+    console.warn("⚠️ RESEND_API_KEY is not configured - skipping module confirmation email");
+    return false;
+  }
+
+  console.log("🔑 Using Resend API key:", apiKey.substring(0, 10) + "...");
+
+  const htmlContent = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modul-Anmeldungsbestätigung - DIVE Demo Tour</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(to right, #ea580c, #f97316); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">DIVE Demo Tour</h1>
+              <p style="margin: 10px 0 0 0; color: #fed7aa; font-size: 16px;">Modul-Anmeldungsbestätigung</p>
+            </td>
+          </tr>
+          
+          <!-- Success Icon -->
+          <tr>
+            <td style="padding: 40px 30px 20px; text-align: center;">
+              <div style="width: 80px; height: 80px; margin: 0 auto; background-color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 6L9 17L4 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 0 30px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 24px; text-align: center;">Eingangsbestätigung!</h2>
+              
+              <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Hallo ${params.firstName} ${params.lastName},
+              </p>
+              
+              <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Ihre Anmeldung ist bei uns eingegangen und wird nun bearbeitet.
+              </p>
+              
+              <!-- Module Details Box -->
+              <table role="presentation" style="width: 100%; background-color: #fff7ed; border-radius: 8px; border-left: 4px solid #ea580c; margin: 20px 0;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <h3 style="margin: 0 0 15px 0; color: #9a3412; font-size: 18px;">📦 Modul-Details</h3>
+                    
+                    <table role="presentation" style="width: 100%;">
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px; width: 120px;">
+                          <strong>Modul:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.moduleTitle}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Event:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.eventTitle}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Datum:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.eventDate}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Ort:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.eventCity}, ${params.eventCountry}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Bestätigungs-ID:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px; font-family: monospace;">
+                          ${params.registrationId}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
+              </p>
+              
+              <p style="margin: 20px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                Bei Fragen stehen wir Ihnen gerne zur Verfügung:
+              </p>
+              
+              <p style="margin: 0 0 10px 0; color: #4b5563; font-size: 14px;">
+                📧 E-Mail: <a href="mailto:info@dive-demo-tour.eu" style="color: #ea580c; text-decoration: none;">info@dive-demo-tour.eu</a>
+              </p>
+              
+              <p style="margin: 0 0 20px 0; color: #4b5563; font-size: 14px;">
+                🌐 Web: <a href="https://dive-demo-tour.eu" style="color: #ea580c; text-decoration: none;">dive-demo-tour.eu</a>
+              </p>
+              
+              <!-- CTA Button -->
+              <table role="presentation" style="margin: 30px 0;">
+                <tr>
+                  <td style="text-align: center;">
+                    <a href="https://dive-demo-tour.eu" style="display: inline-block; padding: 14px 32px; background: linear-gradient(to right, #ea580c, #f97316); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
                       Zur Website
                     </a>
                   </td>
@@ -180,29 +416,30 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
   `;
 
   const textContent = `
-DIVE Demo Tour - Anmeldungsbestätigung
+DIVE DEMO TOUR - Eingangsbestätigung
 
 Hallo ${params.firstName} ${params.lastName},
 
-vielen Dank für Ihre Anmeldung zur DIVE Demo Tour! Wir freuen uns, Sie bei unserem Event begrüßen zu dürfen.
+wir haben Ihre Anmeldung zum Event-Modul erhalten - diese wird nun bearbeitet.
 
-Event-Details:
+Modul-Details:
+- Modul: ${params.moduleTitle}
 - Event: ${params.eventTitle}
 - Datum: ${params.eventDate}
 - Ort: ${params.eventCity}, ${params.eventCountry}
 - Bestätigungs-ID: ${params.registrationId}
 
-Weitere Informationen zum Programm und Ablauf erhalten Sie in den kommenden Tagen per E-Mail.
+Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
 
 Bei Fragen stehen wir Ihnen gerne zur Verfügung:
 📧 E-Mail: info@dive-demo-tour.eu
 🌐 Web: https://dive-demo-tour.eu
 
 Wir freuen uns auf Sie!
-Ihr DIVE Demo Tour Team
+Ihr Team von DIVE DEMO TOUR
 
 ---
-DIVE Demo Tour 2026
+DIVE DEMO TOUR
 Diese E-Mail wurde automatisch generiert.
   `.trim();
 
@@ -214,9 +451,9 @@ Diese E-Mail wurde automatisch generiert.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "DIVE Demo Tour <noreply@dive-demo-tour.eu>",
-        to: [params.to],
-        subject: `Anmeldungsbestätigung - ${params.eventTitle}`,
+        from: "DIVE Demo Tour <onboarding@resend.dev>",
+        to: params.to,
+        subject: `Eingangsbestätigung - ${params.moduleTitle}`,
         html: htmlContent,
         text: textContent,
       }),
@@ -224,25 +461,25 @@ Diese E-Mail wurde automatisch generiert.
 
     if (!response.ok) {
       const error = await response.json();
-      console.error("Error sending email via Resend:", error);
+      console.error("Error sending module confirmation email via Resend:", error);
       return false;
     }
 
     const result = await response.json();
-    console.log("Email sent successfully:", result);
+    console.log("Module confirmation email sent successfully:", result);
     return true;
   } catch (error) {
-    console.error("Failed to send email:", error);
+    console.error("Failed to send module confirmation email:", error);
     return false;
   }
 }
 
 export async function sendAdminNotification(params: AdminNotificationParams): Promise<boolean> {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const apiKey = Deno.env.get("RESEND_API_KEY")?.trim();
   const adminEmail = Deno.env.get("ADMIN_EMAIL");
 
-  if (!apiKey) {
-    console.error("RESEND_API_KEY environment variable is not set");
+  if (!apiKey || apiKey === "your-resend-api-key-here") {
+    console.warn("⚠️ RESEND_API_KEY is not configured - skipping admin notification");
     return false;
   }
 
@@ -250,6 +487,8 @@ export async function sendAdminNotification(params: AdminNotificationParams): Pr
     console.warn("ADMIN_EMAIL environment variable is not set - skipping admin notification");
     return false;
   }
+
+  console.log("🔑 Using Resend API key:", apiKey.substring(0, 10) + "...");
 
   const { registration, event } = params;
   const registeredDate = new Date(registration.registeredAt).toLocaleString("de-DE", {
@@ -263,7 +502,7 @@ export async function sendAdminNotification(params: AdminNotificationParams): Pr
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neue Event-Anmeldung - DIVE Demo Tour</title>
+  <title>Neue Event-Anmeldung - DIVE DEMO TOUR</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
   <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -424,7 +663,7 @@ ${registration.organization ? `🏢 Organisation: ${registration.organization}` 
 
 ${registration.message ? `💬 NACHRICHT:\n${registration.message}\n` : ""}
 ---
-DIVE Demo Tour 2026 - Admin-Benachrichtigung
+DIVE DEMO TOUR - Admin-Benachrichtigung
 Zum Admin-Dashboard: https://dive-demo-tour.eu/admin
   `.trim();
 
@@ -436,8 +675,8 @@ Zum Admin-Dashboard: https://dive-demo-tour.eu/admin
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "DIVE Demo Tour Admin <info@dive-demo-tour.eu>",
-        to: [adminEmail],
+        from: "DIVE DEMO TOUR Admin <onboarding@resend.dev>",
+        to: adminEmail,
         subject: `🔔 Neue Anmeldung: ${event.title} - ${registration.firstName} ${registration.lastName}`,
         html: htmlContent,
         text: textContent,

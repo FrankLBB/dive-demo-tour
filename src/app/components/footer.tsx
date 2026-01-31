@@ -33,25 +33,22 @@ export function Footer() {
                   info@dive-demo-tour.eu
                 </a>
               </div>
-              <div className="flex items-center gap-2">
-                <Globe className="size-4" />
-                <a href="https://dive-demo-tour.eu" className="hover:text-white transition-colors">
-                  dive-demo-tour.eu
-                </a>
-              </div>
             </div>
           </div>
           <div>
             <h3 className="text-xl mb-4">Links</h3>
             <div className="flex flex-col gap-2 text-gray-400">
-              <Link to="/about" className="hover:text-white transition-colors">
-                Über uns
-              </Link>
               <Link to="/partner" className="hover:text-white transition-colors">
                 Partner
               </Link>
+              <Link to="/brands" className="hover:text-white transition-colors">
+                Marken
+              </Link>
               <Link to="/impressum" className="hover:text-white transition-colors">
                 Impressum
+              </Link>
+              <Link to="/datenschutz" className="hover:text-white transition-colors">
+                Datenschutzerklärung
               </Link>
               <Link to="/admin" className="hover:text-white transition-colors">
                 Admin

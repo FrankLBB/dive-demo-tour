@@ -1,6 +1,6 @@
 import { Hono } from "npm:hono";
 import * as kv from "./kv_store.tsx";
-import { sendConfirmationEmail, sendAdminNotification } from "./email.tsx";
+import { sendConfirmationEmail, sendAdminNotification, sendModuleRegistrationEmail } from "./email.tsx";
 
 export const registrationsApp = new Hono();
 
@@ -11,8 +11,13 @@ interface RegistrationData {
   phone?: string;
   organization?: string;
   message?: string;
+  preferredDate?: string;
+  preferredTime?: string;
   eventId: string;
   eventTitle: string;
+  moduleId?: string;
+  moduleTitle?: string;
+  registrationEmail?: string;
 }
 
 // POST /make-server-281a395c/registrations - Create a new registration
@@ -41,8 +46,13 @@ registrationsApp.post("/", async (c) => {
       phone: body.phone || "",
       organization: body.organization || "",
       message: body.message || "",
+      preferredDate: body.preferredDate || "",
+      preferredTime: body.preferredTime || "",
       eventId: body.eventId,
       eventTitle: body.eventTitle,
+      moduleId: body.moduleId || "",
+      moduleTitle: body.moduleTitle || "",
+      registrationEmail: body.registrationEmail || "",
     };
 
     const timestamp = new Date().toISOString();
@@ -100,6 +110,29 @@ registrationsApp.post("/", async (c) => {
       console.error(`Error sending admin notification: ${error}`);
     });
 
+    // Send module registration email (non-blocking)
+    if (body.moduleId && body.moduleTitle) {
+      sendModuleRegistrationEmail({
+        to: body.email,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        moduleTitle: body.moduleTitle,
+        eventTitle: body.eventTitle,
+        eventDate: body.eventDate || "",
+        eventCity: body.eventCity || "",
+        eventCountry: body.eventCountry || "",
+        registrationId,
+      }).then((success) => {
+        if (success) {
+          console.log(`Module registration email sent to ${body.email}`);
+        } else {
+          console.warn(`Failed to send module registration email to ${body.email}`);
+        }
+      }).catch((error) => {
+        console.error(`Error sending module registration email: ${error}`);
+      });
+    }
+
     return c.json({
       success: true,
       message: "Registration successful",
@@ -152,6 +185,30 @@ registrationsApp.get("/", async (c) => {
     console.error("Error fetching all registrations:", error);
     return c.json(
       { error: "Failed to fetch registrations", details: String(error) },
+      500
+    );
+  }
+});
+
+// DELETE /make-server-281a395c/registrations/:eventId/:registrationId - Delete a registration
+registrationsApp.delete("/:eventId/:registrationId", async (c) => {
+  try {
+    const eventId = c.req.param("eventId");
+    const registrationId = c.req.param("registrationId");
+    const key = `registration:${eventId}:${registrationId}`;
+
+    await kv.del(key);
+
+    console.log(`Registration deleted successfully: ${key}`);
+
+    return c.json({
+      success: true,
+      message: "Registration deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting registration:", error);
+    return c.json(
+      { error: "Failed to delete registration", details: String(error) },
       500
     );
   }
