@@ -11,6 +11,24 @@ export default function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
+    // Check for maintenance bypass in URL (?bypass_maintenance=true)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('bypass_maintenance') === 'true') {
+      localStorage.setItem('maintenanceMode', 'false');
+      // Remove the query parameter and reload
+      window.history.replaceState({}, '', window.location.pathname);
+      window.location.reload();
+      return;
+    }
+
+    // Check for force maintenance mode in URL (?maintenance=true)
+    if (urlParams.get('maintenance') === 'true') {
+      localStorage.setItem('maintenanceMode', 'true');
+      window.history.replaceState({}, '', window.location.pathname);
+      window.location.reload();
+      return;
+    }
+
     // Check maintenance mode
     const checkMaintenanceMode = () => {
       const maintenanceMode = localStorage.getItem("maintenanceMode") === "true";

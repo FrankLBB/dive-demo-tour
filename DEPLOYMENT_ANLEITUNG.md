@@ -349,6 +349,32 @@ Falls nicht, erstellen Sie die Datei `/public/_redirects` mit:
 2. Stellen Sie sicher, dass keine Leerzeichen vor/nach den Werten sind
 3. Triggern Sie ein Re-Deployment
 
+### Problem: Wartungsmodus ist auf Production-URL aktiv
+
+**Lösung:**
+
+Wenn die Website auf der Production-URL (`dive-demo-tour.vercel.app`) die Wartungsseite zeigt, aber auf der Branch-URL funktioniert:
+
+**Option 1: Query-Parameter nutzen (empfohlen)**
+```
+https://dive-demo-tour.vercel.app?bypass_maintenance=true
+```
+Öffnen Sie diese URL in Ihrem Browser. Der Wartungsmodus wird automatisch deaktiviert.
+
+**Option 2: Browser-Console**
+1. Öffnen Sie die Browser-Console (F12)
+2. Gehen Sie zum "Console"-Tab
+3. Fügen Sie ein:
+   ```javascript
+   localStorage.removeItem('maintenanceMode');
+   location.reload();
+   ```
+
+**Option 3: Über Admin-Dashboard**
+1. Gehen Sie zu `https://dive-demo-tour.vercel.app/admin`
+2. Melden Sie sich an
+3. Deaktivieren Sie den Wartungsmodus im Dashboard
+
 ---
 
 ## 📊 MONITORING & ANALYTICS
