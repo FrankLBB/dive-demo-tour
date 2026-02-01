@@ -12,6 +12,8 @@ Der Wartungsmodus wird über `localStorage` im Browser gespeichert. Da jede Doma
 
 ## ✅ LÖSUNG 1: Query-Parameter (Schnellste Methode)
 
+**WICHTIG:** Funktioniert nur nach korrektem Vercel-Deployment!
+
 Öffnen Sie diese URL in Ihrem Browser:
 
 ```
@@ -24,6 +26,8 @@ Die Website wird:
 3. Sich neu laden und normal funktionieren
 
 ✨ **Vorteil:** Funktioniert sofort, keine technischen Kenntnisse nötig
+
+⚠️ **Falls Sie einen 404-Fehler bekommen:** Das bedeutet, dass die `vercel.json` Konfigurationsdatei fehlt oder das Projekt noch nicht korrekt deployed wurde. In diesem Fall nutzen Sie **Lösung 2** oder **Lösung 3**.
 
 ---
 

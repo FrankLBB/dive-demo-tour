@@ -329,11 +329,26 @@ Falls Sie ein Re-Deployment erzwingen möchten:
 ### Problem: "404 Not Found" nach Reload
 
 **Lösung:**
-Die `_redirects` Datei sollte bereits vorhanden sein in `/public/_redirects/main.tsx`.
-Falls nicht, erstellen Sie die Datei `/public/_redirects` mit:
+Die `vercel.json` Datei sollte bereits vorhanden sein im Root-Verzeichnis. Diese Datei konfiguriert Vercel so, dass alle Routen zu `/index.html` umgeleitet werden (SPA-Routing).
+
+Falls die Datei fehlt, erstellen Sie `/vercel.json` mit folgendem Inhalt:
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+Zusätzlich sollte die Datei `/public/_redirects` existieren mit:
 ```
 /*    /index.html   200
 ```
+
+Nach dem Hinzufügen dieser Dateien, pushen Sie zu GitHub und Vercel wird automatisch neu deployen.
 
 ### Problem: Bilder werden nicht angezeigt
 
