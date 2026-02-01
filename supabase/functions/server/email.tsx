@@ -8,6 +8,8 @@ interface ModuleEmailParams {
   eventCity: string;
   eventCountry: string;
   registrationId: string;
+  preferredDate?: string;
+  preferredTime?: string;
 }
 
 interface EmailParams {
@@ -19,6 +21,8 @@ interface EmailParams {
   eventCity: string;
   eventCountry: string;
   registrationId: string;
+  preferredDate?: string;
+  preferredTime?: string;
 }
 
 interface AdminNotificationParams {
@@ -135,6 +139,16 @@ export async function sendConfirmationEmail(params: EmailParams): Promise<boolea
                           ${params.registrationId}
                         </td>
                       </tr>
+                      ${params.preferredDate ? `
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Wunschdatum:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.preferredDate}${params.preferredTime ? ` um ${params.preferredTime} Uhr` : ""}
+                        </td>
+                      </tr>
+                      ` : ""}
                     </table>
                   </td>
                 </tr>
@@ -205,6 +219,7 @@ Event-Details:
 - Datum: ${params.eventDate}
 - Ort: ${params.eventCity}, ${params.eventCountry}
 - Bestätigungs-ID: ${params.registrationId}
+${params.preferredDate ? `Wunschdatum: ${params.preferredDate}${params.preferredTime ? ` um ${params.preferredTime} Uhr` : ""}\n` : ""}
 
 Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
 
@@ -357,6 +372,16 @@ async function sendModuleConfirmationEmail(params: ModuleEmailParams): Promise<b
                           ${params.registrationId}
                         </td>
                       </tr>
+                      ${params.preferredDate ? `
+                      <tr>
+                        <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">
+                          <strong>Wunschdatum:</strong>
+                        </td>
+                        <td style="padding: 8px 0; color: #1f2937; font-size: 14px;">
+                          ${params.preferredDate}${params.preferredTime ? ` um ${params.preferredTime} Uhr` : ""}
+                        </td>
+                      </tr>
+                      ` : ""}
                     </table>
                   </td>
                 </tr>
@@ -428,6 +453,7 @@ Modul-Details:
 - Datum: ${params.eventDate}
 - Ort: ${params.eventCity}, ${params.eventCountry}
 - Bestätigungs-ID: ${params.registrationId}
+${params.preferredDate ? `Wunschdatum: ${params.preferredDate}${params.preferredTime ? ` um ${params.preferredTime} Uhr` : ""}\n` : ""}
 
 Eine Rückmeldung erhalten Sie in den kommenden Tagen per E-Mail.
 

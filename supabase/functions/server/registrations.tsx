@@ -80,6 +80,8 @@ registrationsApp.post("/", async (c) => {
       eventCity: body.eventCity || "",
       eventCountry: body.eventCountry || "",
       registrationId,
+      preferredDate: body.preferredDate,
+      preferredTime: body.preferredTime,
     }).then((success) => {
       if (success) {
         console.log(`Confirmation email sent to ${body.email}`);
@@ -122,6 +124,8 @@ registrationsApp.post("/", async (c) => {
         eventCity: body.eventCity || "",
         eventCountry: body.eventCountry || "",
         registrationId,
+        preferredDate: body.preferredDate,
+        preferredTime: body.preferredTime,
       }).then((success) => {
         if (success) {
           console.log(`Module registration email sent to ${body.email}`);

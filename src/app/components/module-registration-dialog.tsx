@@ -29,6 +29,14 @@ export function ModuleRegistrationDialog({
   isFinished,
 }: ModuleRegistrationDialogProps) {
   const [open, setOpen] = useState(false);
+  
+  // Helper function to convert YYYY-MM-DD to DD.MM.YYYY
+  const formatDateToDDMMYYYY = (dateStr: string): string => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split("-");
+    return `${day}.${month}.${year}`;
+  };
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -36,7 +44,7 @@ export function ModuleRegistrationDialog({
     phone: "",
     organization: "",
     message: "",
-    preferredDate: event.begin_date || "",
+    preferredDate: formatDateToDDMMYYYY(event.begin_date) || "",
     preferredTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,7 +98,7 @@ export function ModuleRegistrationDialog({
           phone: "",
           organization: "",
           message: "",
-          preferredDate: event.begin_date || "",
+          preferredDate: formatDateToDDMMYYYY(event.begin_date) || "",
           preferredTime: "",
         });
         setIsSuccess(false);
@@ -113,7 +121,7 @@ export function ModuleRegistrationDialog({
         phone: "",
         organization: "",
         message: "",
-        preferredDate: event.begin_date || "",
+        preferredDate: formatDateToDDMMYYYY(event.begin_date) || "",
         preferredTime: "",
       });
       setError(null);
