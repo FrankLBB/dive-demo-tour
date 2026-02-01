@@ -28,6 +28,35 @@ interface AdminEventManagementProps {
   onModuleEdit?: (moduleId: string) => void;
 }
 
+// Helper function to format date to German format
+function formatDateToGerman(dateString: string): string {
+  if (!dateString) return "";
+  
+  // Check if it's already in German format (contains letters)
+  if (/[a-zA-ZäöüÄÖÜ]/.test(dateString)) {
+    return dateString;
+  }
+  
+  // Parse ISO date (YYYY-MM-DD)
+  const date = new Date(dateString);
+  
+  // Check if valid date
+  if (isNaN(date.getTime())) {
+    return dateString;
+  }
+  
+  const months = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember"
+  ];
+  
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  return `${day}. ${month} ${year}`;
+}
+
 export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEventManagementProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -515,8 +544,13 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
         </Card>
       ) : (
         <div className="space-y-4">
-          {events.map((event) => (
-            <Card key={event.id}>
+          {events.map((event) => {
+            const isPastOrCompleted = event.status === "past" || event.status === "completed";
+            const isPreparing = event.status === "preparing";
+            const isConfirmed = event.status === "confirmed";
+            
+            return (
+            <Card key={event.id} className={isPreparing ? "border-orange-400 border-2" : ""}>
               <CardContent className="pt-6">
                 <div className="flex flex-col lg:flex-row gap-4">
                   {/* Event Image */}
@@ -525,7 +559,9 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                       <img
                         src={event.image}
                         alt={event.title}
-                        className="w-full h-full object-cover"
+                        className={`w-full h-full object-cover ${
+                          isPastOrCompleted ? "grayscale opacity-60" : ""
+                        }`}
                       />
                     </div>
                   )}
@@ -534,7 +570,9 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                       <div>
-                        <h3 className="text-xl font-semibold mb-1">
+                        <h3 className={`text-xl font-semibold mb-1 ${
+                          isPastOrCompleted ? "text-gray-400" : ""
+                        }`}>
                           {event.title}
                         </h3>
                         <div className="flex flex-wrap gap-2">
@@ -547,6 +585,15 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                                 : event.status === "completed"
                                 ? "outline"
                                 : "destructive"
+                            }
+                            className={
+                              isPastOrCompleted 
+                                ? "bg-gray-100 text-gray-500 border-gray-200" 
+                                : isPreparing
+                                ? "bg-orange-500 text-white border-orange-500 hover:bg-orange-600"
+                                : isConfirmed
+                                ? "bg-green-600 text-white border-green-600 hover:bg-green-700"
+                                : ""
                             }
                           >
                             {event.status === "confirmed"
@@ -562,34 +609,44 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm mb-3">
-                      <div className="flex items-center gap-2">
+                      <div className={`flex items-center gap-2 ${
+                        isPastOrCompleted ? "text-gray-400" : ""
+                      }`}>
                         <Calendar className="size-4 text-gray-400" />
                         <span>
-                          {event.begin_date}
+                          {formatDateToGerman(event.begin_date)}
                           {event.end_date !== event.begin_date &&
-                            ` - ${event.end_date}`}
+                            ` - ${formatDateToGerman(event.end_date)}`}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className={`flex items-center gap-2 ${
+                        isPastOrCompleted ? "text-gray-400" : ""
+                      }`}>
                         <MapPin className="size-4 text-gray-400" />
                         <span>
                           {event.city}, {event.country}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className={`flex items-center gap-2 ${
+                        isPastOrCompleted ? "text-gray-400" : ""
+                      }`}>
                         <Users className="size-4 text-gray-400" />
                         <span>{event.attendees} Teilnehmer</span>
                       </div>
                     </div>
 
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className={`text-sm line-clamp-2 ${
+                      isPastOrCompleted ? "text-gray-400" : "text-gray-600"
+                    }`}>
                       {event.description}
                     </p>
 
                     {/* Assigned Modules */}
                     {getEventModules(event).length > 0 && (
                       <div className="mt-4 pt-4 border-t">
-                        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                        <h4 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
+                          isPastOrCompleted ? "text-gray-400" : ""
+                        }`}>
                           <Grid3x3 className="size-4" />
                           Zugeordnete Module ({getEventModules(event).length})
                         </h4>
@@ -600,15 +657,21 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                               <button
                                 key={module.id}
                                 onClick={() => onModuleEdit?.(module.id)}
-                                className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer"
+                                className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                                  isPastOrCompleted
+                                    ? "bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300"
+                                    : "bg-blue-50 border-blue-200 hover:bg-blue-100 hover:border-blue-300"
+                                }`}
                               >
                                 {brand && (
-                                  <span className="text-xs text-blue-600 font-medium">
+                                  <span className={`text-xs font-medium ${
+                                    isPastOrCompleted ? "text-gray-500" : "text-blue-600"
+                                  }`}>
                                     {brand.name}
                                   </span>
                                 )}
-                                {brand && <span className="text-blue-300">•</span>}
-                                <span className="text-blue-800">{module.title}</span>
+                                {brand && <span className={isPastOrCompleted ? "text-gray-300" : "text-blue-300"}>•</span>}
+                                <span className={isPastOrCompleted ? "text-gray-500" : "text-blue-800"}>{module.title}</span>
                               </button>
                             );
                           })}
@@ -660,7 +723,8 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                 </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -707,12 +771,13 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                         Startdatum *
                       </label>
                       <Input
+                        type="date"
                         value={formData.begin_date}
                         onChange={(e) =>
                           setFormData({ ...formData, begin_date: e.target.value })
                         }
                         required
-                        placeholder="z.B. 1. Februar 2026"
+                        placeholder="YYYY-MM-DD"
                       />
                     </div>
 
@@ -721,6 +786,7 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                         Startzeit *
                       </label>
                       <Input
+                        type="time"
                         value={formData.begin_time}
                         onChange={(e) =>
                           setFormData({ ...formData, begin_time: e.target.value })
@@ -735,12 +801,13 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                         Enddatum *
                       </label>
                       <Input
+                        type="date"
                         value={formData.end_date}
                         onChange={(e) =>
                           setFormData({ ...formData, end_date: e.target.value })
                         }
                         required
-                        placeholder="z.B. 5. Februar 2026"
+                        placeholder="YYYY-MM-DD"
                       />
                     </div>
 
@@ -749,6 +816,7 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                         Endzeit *
                       </label>
                       <Input
+                        type="time"
                         value={formData.end_time}
                         onChange={(e) =>
                           setFormData({ ...formData, end_time: e.target.value })

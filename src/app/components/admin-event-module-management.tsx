@@ -255,13 +255,29 @@ export function AdminEventModuleManagement() {
   };
 
   // Filter modules by brand
-  const filteredModules = filterBrandId === "all"
+  const filteredModules = (filterBrandId === "all"
     ? modules
     : modules.filter(module =>
         filterBrandId === "none"
           ? module.brandId === null
           : module.brandId === filterBrandId
-      );
+      )
+  ).sort((a, b) => {
+    // Get brand names
+    const brandA = getBrandById(a.brandId);
+    const brandB = getBrandById(b.brandId);
+    const brandNameA = brandA?.name || "";
+    const brandNameB = brandB?.name || "";
+    
+    // Sort by brand name first
+    const brandComparison = brandNameA.localeCompare(brandNameB, 'de', { sensitivity: 'base' });
+    if (brandComparison !== 0) {
+      return brandComparison;
+    }
+    
+    // If same brand (or both no brand), sort by module title
+    return a.title.localeCompare(b.title, 'de', { sensitivity: 'base' });
+  });
 
   if (isLoading) {
     return (
@@ -667,6 +683,7 @@ export function AdminEventModuleManagement() {
           {filteredModules.map((module) => {
             const brand = getBrandById(module.brandId);
             const partner = getPartnerById(module.partnerId);
+            const isInactive = module.status === "inactive";
 
             return (
               <Card key={module.id}>
@@ -680,17 +697,21 @@ export function AdminEventModuleManagement() {
                             <img
                               src={brand.logo}
                               alt={brand.name}
-                              className="w-full h-full object-contain"
+                              className={`w-full h-full object-contain ${
+                                isInactive ? "grayscale opacity-60" : ""
+                              }`}
                             />
                           </div>
                         )}
 
                         <div className="flex-1">
-                          <h3 className="text-xl mb-2">{module.title}</h3>
+                          <h3 className={`text-xl mb-2 ${isInactive ? "text-gray-400" : ""}`}>
+                            {module.title}
+                          </h3>
 
                           {/* Interne Bezeichnung */}
                           {module.internalName && (
-                            <p className="text-sm text-gray-500 mb-2">
+                            <p className={`text-sm mb-2 ${isInactive ? "text-gray-400" : "text-gray-500"}`}>
                               Intern: {module.internalName}
                             </p>
                           )}
@@ -709,19 +730,19 @@ export function AdminEventModuleManagement() {
                             </Badge>
 
                             {brand && (
-                              <Badge className="bg-purple-100 text-purple-800">
+                              <Badge className={isInactive ? "bg-gray-100 text-gray-500" : "bg-purple-100 text-purple-800"}>
                                 <Tag className="mr-1 size-3" />
                                 {brand.name}
                               </Badge>
                             )}
                             {partner && (
-                              <Badge className="bg-blue-100 text-blue-800">
+                              <Badge className={isInactive ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-800"}>
                                 <Handshake className="mr-1 size-3" />
                                 {partner.name}
                               </Badge>
                             )}
                             {module.registrationRequired && (
-                              <Badge className="bg-orange-100 text-orange-800">
+                              <Badge className={isInactive ? "bg-gray-100 text-gray-500" : "bg-orange-100 text-orange-800"}>
                                 <Mail className="mr-1 size-3" />
                                 Anmeldung erforderlich
                               </Badge>
@@ -732,13 +753,15 @@ export function AdminEventModuleManagement() {
 
                       {/* Details */}
                       {module.details && (
-                        <p className="text-gray-600 mb-3">{module.details}</p>
+                        <p className={`mb-3 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
+                          {module.details}
+                        </p>
                       )}
 
                       {/* Info Grid */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                         {/* Zeitpunkt */}
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className={`flex items-center gap-2 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
                           <Clock className="size-4" />
                           <span>
                             {module.timeType === "daily"
@@ -750,7 +773,7 @@ export function AdminEventModuleManagement() {
                         </div>
 
                         {/* Dauer */}
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className={`flex items-center gap-2 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
                           <Clock className="size-4" />
                           <span>
                             {module.durationType === "event"
@@ -761,7 +784,7 @@ export function AdminEventModuleManagement() {
 
                         {/* Teilnehmer - nur anzeigen wenn gesetzt */}
                         {module.maxParticipants && module.maxParticipants > 0 && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className={`flex items-center gap-2 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
                             <Users className="size-4" />
                             <span>Max. {module.maxParticipants}</span>
                           </div>
@@ -769,7 +792,7 @@ export function AdminEventModuleManagement() {
 
                         {/* Anmeldung - nur anzeigen wenn erforderlich */}
                         {module.registrationRequired && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className={`flex items-center gap-2 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
                             <Mail className="size-4" />
                             <span>Anmeldung erforderlich</span>
                           </div>
@@ -777,7 +800,7 @@ export function AdminEventModuleManagement() {
 
                         {/* Kosten */}
                         {module.cost && (
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className={`flex items-center gap-2 ${isInactive ? "text-gray-400" : "text-gray-600"}`}>
                             <Euro className="size-4" />
                             <span>{module.cost}</span>
                           </div>

@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router";
 import { useState, useEffect } from "react";
-import { events as staticEvents } from "@/app/data/events";
 import {
   Calendar,
   MapPin,
@@ -51,7 +50,7 @@ export function EventDetail() {
       setError(null);
 
       try {
-        // Try to fetch from backend
+        // Fetch from backend
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-281a395c/events/${id}`,
           {
@@ -66,30 +65,15 @@ export function EventDetail() {
           if (data.event) {
             console.log("✅ Event loaded from backend:", data.event.title);
             setEvent(data.event);
-            setIsLoading(false);
-            return;
+          } else {
+            setError("Event nicht gefunden");
           }
-        }
-        
-        // Fallback to static events
-        console.log("⚠️ Event not found in backend, checking static events");
-        const staticEvent = staticEvents.find((e) => e.id === id);
-        if (staticEvent) {
-          console.log("✅ Event loaded from static data:", staticEvent.title);
-          setEvent(staticEvent);
         } else {
           setError("Event nicht gefunden");
         }
       } catch (err) {
         console.error("Error fetching event:", err);
-        // Fallback to static events
-        const staticEvent = staticEvents.find((e) => e.id === id);
-        if (staticEvent) {
-          console.log("✅ Event loaded from static data (fallback):", staticEvent.title);
-          setEvent(staticEvent);
-        } else {
-          setError("Event konnte nicht geladen werden");
-        }
+        setError("Event konnte nicht geladen werden");
       } finally {
         setIsLoading(false);
       }

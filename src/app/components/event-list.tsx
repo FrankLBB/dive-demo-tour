@@ -32,11 +32,21 @@ export function EventList() {
 
       const data = await response.json();
       // Ensure data is an array
+      // Events are already sorted by the backend (ascending by begin_date)
       if (data && Array.isArray(data.events)) {
-        setEvents(data.events);
+        // Filter events: only show "confirmed" or "past" status
+        const filteredEvents = data.events.filter(
+          (event: Event) => event.status === "confirmed" || event.status === "past"
+        );
+        setEvents(filteredEvents);
+        console.log('✅ Events loaded (sorted by backend, filtered for confirmed/past):', filteredEvents.map(e => ({ title: e.title, date: e.begin_date, status: e.status })));
       } else if (Array.isArray(data)) {
         // Fallback: if server returns array directly
-        setEvents(data);
+        const filteredEvents = data.filter(
+          (event: Event) => event.status === "confirmed" || event.status === "past"
+        );
+        setEvents(filteredEvents);
+        console.log('✅ Events loaded (sorted by backend, filtered for confirmed/past):', filteredEvents.map(e => ({ title: e.title, date: e.begin_date, status: e.status })));
       } else {
         console.error('Events data is not an array:', data);
         setEvents([]);

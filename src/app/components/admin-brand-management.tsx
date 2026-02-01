@@ -300,99 +300,115 @@ export function AdminBrandManagement({ onBrandChange }: AdminBrandManagementProp
             </CardContent>
           </Card>
         ) : (
-          brands.map((brand) => (
-            <Card key={brand.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  {/* Logo */}
-                  <div className="w-60 h-20 flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
-                    {brand.logo ? (
-                      <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <Tag className="size-10 text-gray-400" />
-                    )}
-                  </div>
+          brands.map((brand) => {
+            const isInactive = brand.status === "inactive";
+            
+            return (
+              <Card key={brand.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Logo */}
+                    <div className="w-60 h-20 flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                      {brand.logo ? (
+                        <img
+                          src={brand.logo}
+                          alt={brand.name}
+                          className={`w-full h-full object-contain ${
+                            isInactive ? "filter grayscale opacity-60" : ""
+                          }`}
+                        />
+                      ) : (
+                        <Tag className={`size-10 ${isInactive ? "text-gray-400" : "text-gray-400"}`} />
+                      )}
+                    </div>
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900">
-                          {brand.name}
-                        </h4>
-                        <div className="flex items-center gap-3 mt-1">
-                          <Badge
-                            variant={brand.status === "active" ? "default" : "secondary"}
+                    {/* Content */}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h4 className={`text-xl font-semibold ${
+                            isInactive ? "text-gray-400" : "text-gray-900"
+                          }`}>
+                            {brand.name}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-1">
+                            <Badge
+                              variant={brand.status === "active" ? "default" : "secondary"}
+                              className={
+                                brand.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-gray-100 text-gray-500"
+                              }
+                            >
+                              {brand.status === "active" ? "Aktiv" : "Inaktiv"}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleOpenDialog(brand)}
+                          >
+                            <Edit className="size-4 mr-1" />
+                            Bearbeiten
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(brand.id)}
                             className={
-                              brand.status === "active"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-gray-100 text-gray-800"
+                              deleteConfirmId === brand.id
+                                ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+                                : ""
                             }
                           >
-                            {brand.status === "active" ? "Aktiv" : "Inaktiv"}
-                          </Badge>
+                            <Trash2 className="size-4 mr-1" />
+                            {deleteConfirmId === brand.id ? "Bestätigen?" : "Löschen"}
+                          </Button>
                         </div>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenDialog(brand)}
-                        >
-                          <Edit className="size-4 mr-1" />
-                          Bearbeiten
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(brand.id)}
-                          className={
-                            deleteConfirmId === brand.id
-                              ? "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
-                              : ""
-                          }
-                        >
-                          <Trash2 className="size-4 mr-1" />
-                          {deleteConfirmId === brand.id ? "Bestätigen?" : "Löschen"}
-                        </Button>
+                      <p className={`mb-3 ${
+                        isInactive ? "text-gray-400" : "text-gray-700"
+                      }`}>{brand.shortDescription}</p>
+
+                      <div className={`flex flex-wrap items-center gap-4 text-sm ${
+                        isInactive ? "text-gray-400" : "text-gray-600"
+                      }`}>
+                        {brand.url && (
+                          <a
+                            href={brand.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-center gap-1 ${
+                              isInactive ? "text-gray-400 hover:text-gray-500" : "text-blue-600 hover:underline"
+                            }`}
+                          >
+                            <Globe className="size-4" />
+                            Website
+                          </a>
+                        )}
+                        {brand.email && (
+                          <a
+                            href={`mailto:${brand.email}`}
+                            className={`flex items-center gap-1 ${
+                              isInactive ? "text-gray-400 hover:text-gray-500" : "text-blue-600 hover:underline"
+                            }`}
+                          >
+                            <Mail className="size-4" />
+                            {brand.email}
+                          </a>
+                        )}
                       </div>
                     </div>
-
-                    <p className="text-gray-700 mb-3">{brand.shortDescription}</p>
-
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                      {brand.url && (
-                        <a
-                          href={brand.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 text-blue-600 hover:underline"
-                        >
-                          <Globe className="size-4" />
-                          Website
-                        </a>
-                      )}
-                      {brand.email && (
-                        <a
-                          href={`mailto:${brand.email}`}
-                          className="flex items-center gap-1 text-blue-600 hover:underline"
-                        >
-                          <Mail className="size-4" />
-                          {brand.email}
-                        </a>
-                      )}
-                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </div>
 

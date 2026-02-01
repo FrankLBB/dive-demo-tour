@@ -414,111 +414,125 @@ export function AdminPartnerManagement({ onPartnerChange }: AdminPartnerManageme
 
                     {/* Partner dieser Kategorie */}
                     <div className="grid grid-cols-1 gap-4">
-                      {groupedPartners[type].map((partner) => (
-                        <Card key={partner.id} className="hover:shadow-lg transition-shadow">
-                          <CardContent className="p-6">
-                            <div className="flex items-start gap-4">
-                              {/* Logo */}
-                              <div className="w-60 h-20 flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
-                                {partner.logo ? (
-                                  <img
-                                    src={partner.logo}
-                                    alt={partner.name}
-                                    className="w-full h-full object-contain"
-                                  />
-                                ) : (
-                                  <Users className="size-10 text-gray-400" />
-                                )}
-                              </div>
-
-                              {/* Content */}
-                              <div className="flex-1">
-                                <div className="flex items-start justify-between mb-2">
-                                  <div>
-                                    <h4 className="text-xl text-blue-600 mb-1">
-                                      {partner.name}
-                                    </h4>
-                                    <Badge
-                                      className={
-                                        partner.status === "active"
-                                          ? "bg-green-100 text-green-800"
-                                          : "bg-gray-100 text-gray-800"
-                                      }
-                                    >
-                                      {partner.status === "active" ? "Aktiv" : "Inaktiv"}
-                                    </Badge>
-                                  </div>
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleOpenDialog(partner)}
-                                    >
-                                      <Edit className="size-4" />
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className={
-                                        deleteConfirmId === partner.id
-                                          ? "bg-red-50 border-red-300 text-red-600"
-                                          : ""
-                                      }
-                                      onClick={() => handleDelete(partner.id)}
-                                    >
-                                      <Trash2 className="size-4" />
-                                    </Button>
-                                  </div>
+                      {groupedPartners[type].map((partner) => {
+                        const isInactive = partner.status === "inactive";
+                        
+                        return (
+                          <Card key={partner.id} className="hover:shadow-lg transition-shadow">
+                            <CardContent className="p-6">
+                              <div className="flex items-start gap-4">
+                                {/* Logo */}
+                                <div className="w-60 h-20 flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                                  {partner.logo ? (
+                                    <img
+                                      src={partner.logo}
+                                      alt={partner.name}
+                                      className={`w-full h-full object-contain ${
+                                        isInactive ? "filter grayscale opacity-60" : ""
+                                      }`}
+                                    />
+                                  ) : (
+                                    <Users className={`size-10 ${isInactive ? "text-gray-400" : "text-gray-400"}`} />
+                                  )}
                                 </div>
 
-                                <p className="text-gray-700 mb-3">{partner.shortDescription}</p>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                                  {partner.email && (
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Mail className="size-4" />
-                                      <span className="truncate">{partner.email}</span>
-                                    </div>
-                                  )}
-                                  {partner.phone && (
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Phone className="size-4" />
-                                      <span>{partner.phone}</span>
-                                    </div>
-                                  )}
-                                  {partner.url && (
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Globe className="size-4" />
-                                      <a
-                                        href={partner.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="truncate hover:text-blue-600 hover:underline"
+                                {/* Content */}
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div>
+                                      <h4 className={`text-xl mb-1 ${
+                                        isInactive ? "text-gray-400" : "text-blue-600"
+                                      }`}>
+                                        {partner.name}
+                                      </h4>
+                                      <Badge
+                                        className={
+                                          partner.status === "active"
+                                            ? "bg-green-100 text-green-800"
+                                            : "bg-gray-100 text-gray-500"
+                                        }
                                       >
-                                        {partner.url}
-                                      </a>
+                                        {partner.status === "active" ? "Aktiv" : "Inaktiv"}
+                                      </Badge>
                                     </div>
-                                  )}
-                                  {partner.address && (
-                                    <div className="flex items-start gap-2 text-gray-600">
-                                      <MapPin className="size-4 mt-0.5 flex-shrink-0" />
-                                      <span className="whitespace-pre-line">{partner.address}</span>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleOpenDialog(partner)}
+                                      >
+                                        <Edit className="size-4" />
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className={
+                                          deleteConfirmId === partner.id
+                                            ? "bg-red-50 border-red-300 text-red-600"
+                                            : ""
+                                        }
+                                        onClick={() => handleDelete(partner.id)}
+                                      >
+                                        <Trash2 className="size-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <p className={`mb-3 ${
+                                    isInactive ? "text-gray-400" : "text-gray-700"
+                                  }`}>{partner.shortDescription}</p>
+
+                                  <div className={`grid grid-cols-1 md:grid-cols-2 gap-2 text-sm ${
+                                    isInactive ? "text-gray-400" : "text-gray-600"
+                                  }`}>
+                                    {partner.email && (
+                                      <div className="flex items-center gap-2">
+                                        <Mail className="size-4" />
+                                        <span className="truncate">{partner.email}</span>
+                                      </div>
+                                    )}
+                                    {partner.phone && (
+                                      <div className="flex items-center gap-2">
+                                        <Phone className="size-4" />
+                                        <span>{partner.phone}</span>
+                                      </div>
+                                    )}
+                                    {partner.url && (
+                                      <div className="flex items-center gap-2">
+                                        <Globe className="size-4" />
+                                        <a
+                                          href={partner.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={`truncate ${
+                                            isInactive ? "hover:text-gray-500" : "hover:text-blue-600 hover:underline"
+                                          }`}
+                                        >
+                                          {partner.url}
+                                        </a>
+                                      </div>
+                                    )}
+                                    {partner.address && (
+                                      <div className="flex items-start gap-2">
+                                        <MapPin className="size-4 mt-0.5 flex-shrink-0" />
+                                        <span className="whitespace-pre-line">{partner.address}</span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {deleteConfirmId === partner.id && (
+                                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                                      <p className="text-sm text-red-800">
+                                        ⚠️ Klicken Sie erneut auf "Löschen", um zu bestätigen
+                                      </p>
                                     </div>
                                   )}
                                 </div>
-
-                                {deleteConfirmId === partner.id && (
-                                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
-                                    <p className="text-sm text-red-800">
-                                      ⚠️ Klicken Sie erneut auf "Löschen", um zu bestätigen
-                                    </p>
-                                  </div>
-                                )}
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
