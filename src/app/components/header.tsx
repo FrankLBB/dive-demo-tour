@@ -20,32 +20,7 @@ export function Header() {
   });
 
   useEffect(() => {
-    const fetchHomepageData = async () => {
-      try {
-        const response = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/make-server-281a395c/homepage`,
-          {
-            headers: {
-              Authorization: `Bearer ${publicAnonKey}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          console.error("Failed to fetch homepage data:", response.status);
-          return;
-        }
-
-        const data = await response.json();
-        if (data.title) setTitle(data.title);
-        if (data.subtitle) setSubtitle(data.subtitle);
-      } catch (error) {
-        console.error("Error fetching homepage data:", error);
-        // Keep default values on error
-      }
-    };
-
-    fetchHomepageData();
+    fetchSettings();
   }, []);
 
   const fetchSettings = async () => {
@@ -62,6 +37,7 @@ export function Header() {
       if (response.ok) {
         const data = await response.json();
         setSettings(data.settings);
+        console.log("✅ Header settings loaded:", data.settings);
       }
     } catch (err) {
       console.error("Error fetching homepage settings:", err);
@@ -70,15 +46,19 @@ export function Header() {
   };
 
   return (
-    <header className="relative bg-white text-white overflow-hidden border-b-4 border-gray-900 shadow-lg">
+    <header className="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white overflow-hidden border-b-4 border-gray-900 shadow-lg">
       {/* Header Background Image */}
       {settings.logo && (
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('${settings.logo}')`,
-          }}
-        />
+        <>
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url('${settings.logo}')`,
+            }}
+          />
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/40" />
+        </>
       )}
       
       {/* Content */}
@@ -87,9 +67,9 @@ export function Header() {
           {/* Left: Text Content */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <h1 className="text-5xl">{settings.headerTitle}</h1>
+              <h1 className="text-5xl font-bold drop-shadow-lg">{settings.headerTitle}</h1>
             </div>
-            <p className="text-xl text-blue-50 max-w-2xl">
+            <p className="text-xl drop-shadow-md max-w-2xl">
               {settings.headerSubtitle}
             </p>
           </div>
@@ -100,7 +80,7 @@ export function Header() {
               <img
                 src={settings.headerLogo}
                 alt="Header Logo"
-                className="h-24 w-auto object-contain"
+                className="h-24 w-auto object-contain drop-shadow-lg"
               />
             </div>
           )}

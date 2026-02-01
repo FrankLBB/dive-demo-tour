@@ -166,55 +166,35 @@ Nach erfolgreichem Deployment:
 
 ---
 
-## TEIL 4: EIGENE DOMAIN VERBINDEN (Optional)
+## 🌐 CUSTOM DOMAIN KONFIGURIEREN (Optional)
 
-### Schritt 1: Domain zu Vercel hinzufügen
+Falls Sie eine eigene Domain (z.B. `dive-demo-tour.eu`) mit Ihrer Vercel-Deployment verbinden möchten:
 
-1. Im Vercel Projekt, gehen Sie zu **Settings** → **Domains**
-2. Geben Sie Ihre Domain ein: `dive-demo-tour.eu`
-3. Klicken Sie auf **"Add"**
+### Siehe separate Anleitung:
+📄 **[DNS_KONFIGURATION.md](./DNS_KONFIGURATION.md)** - Vollständige Anleitung zur Domain-Konfiguration
 
-### Schritt 2: DNS-Einstellungen konfigurieren
+### Kurzübersicht:
 
-Vercel zeigt Ihnen nun die DNS-Einstellungen an. Sie haben zwei Optionen:
+1. **Domain in Vercel hinzufügen:**
+   - Vercel Dashboard → Ihr Projekt → Settings → Domains
+   - Klicken Sie auf "Add Domain"
+   - Geben Sie Ihre Domain ein
 
-#### **Option A: Vercel Nameserver (empfohlen)**
-
-Bei Ihrem Domain-Registrar (z.B. IONOS, Strato, GoDaddy):
-
-1. Gehen Sie zu DNS/Nameserver Einstellungen
-2. Ändern Sie die Nameserver zu:
+2. **DNS-Einträge beim Provider konfigurieren:**
    ```
-   ns1.vercel-dns.com
-   ns2.vercel-dns.com
+   A-Record:    @ → 76.76.21.21
+   CNAME:       www → cname.vercel-dns.com
    ```
-3. Speichern Sie die Änderungen
-4. ⏱️ Warten Sie 24-48 Stunden (meist nur 1-2 Stunden)
 
-#### **Option B: CNAME/A-Record (wenn Sie die Nameserver nicht ändern können)**
+3. **Warten auf DNS-Propagierung:**
+   - Normalerweise 1-4 Stunden
+   - Überprüfen mit https://dnschecker.org
 
-Bei Ihrem Domain-Registrar:
+4. **SSL-Zertifikat:**
+   - Wird automatisch von Vercel erstellt
+   - Nach erfolgreicher DNS-Konfiguration
 
-**Für Root-Domain (`dive-demo-tour.eu`):**
-```
-Type: A
-Name: @ (oder leer)
-Value: 76.76.21.21
-TTL: 3600
-```
-
-**Für www-Subdomain (`www.dive-demo-tour.eu`):**
-```
-Type: CNAME
-Name: www
-Value: cname.vercel-dns.com
-TTL: 3600
-```
-
-### Schritt 3: SSL-Zertifikat
-
-- Vercel erstellt automatisch ein kostenloses SSL-Zertifikat (Let's Encrypt)
-- Nach erfolgreicher DNS-Propagierung ist Ihre Website über HTTPS erreichbar
+Detaillierte Anleitungen für verschiedene Domain-Provider (IONOS, Strato, Namecheap, GoDaddy, Cloudflare, etc.) finden Sie in der **DNS_KONFIGURATION.md**.
 
 ---
 
