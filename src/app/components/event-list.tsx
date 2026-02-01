@@ -14,7 +14,6 @@ export function EventList() {
   const fetchEvents = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-281a395c/events`,
@@ -26,110 +25,27 @@ export function EventList() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch events from backend");
+        const errorText = await response.text();
+        console.error('Event fetch error:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      
-      if (data.events) {
-        console.log("✅ Events loaded from backend:", data.events.length);
-        
-        // Filter events: only show "confirmed" or "past" status
-        const filteredEvents = data.events.filter((event: Event) => 
-          event.status === "confirmed" || event.status === "past"
-        );
-        
-        console.log(`📋 Filtered events (confirmed/past only): ${filteredEvents.length} of ${data.events.length}`);
-        
-        // Sort events by begin_date and begin_time in ascending order
-        const sortedEvents = filteredEvents.sort((a: Event, b: Event) => {
-          // Parse dates - handle both "DD.MM.YYYY" and "D. Month YYYY" formats
-          const parseDate = (dateStr: string) => {
-            try {
-              // Try format "DD.MM.YYYY" or "D.M.YYYY"
-              if (dateStr.includes('.') && !dateStr.match(/[a-zA-Z]/)) {
-                const parts = dateStr.split('.').map(s => s.trim());
-                if (parts.length === 3) {
-                  const day = parseInt(parts[0]);
-                  const month = parseInt(parts[1]);
-                  const year = parseInt(parts[2]);
-                  if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                    return new Date(year, month - 1, day);
-                  }
-                }
-              }
-              
-              // Try format "D. Month YYYY" (e.g., "1. Februar 2026")
-              const monthNames: { [key: string]: number } = {
-                'januar': 0, 'februar': 1, 'märz': 2, 'april': 3,
-                'mai': 4, 'juni': 5, 'juli': 6, 'august': 7,
-                'september': 8, 'oktober': 9, 'november': 10, 'dezember': 11
-              };
-              
-              const match = dateStr.match(/(\d+)\.\s*(\w+)\s*(\d+)/);
-              if (match) {
-                const day = parseInt(match[1]);
-                const monthName = match[2].toLowerCase();
-                const year = parseInt(match[3]);
-                const month = monthNames[monthName];
-                
-                if (!isNaN(day) && month !== undefined && !isNaN(year)) {
-                  return new Date(year, month, day);
-                }
-              }
-              
-              // Fallback: try Date.parse
-              const fallbackDate = new Date(dateStr);
-              if (!isNaN(fallbackDate.getTime())) {
-                return fallbackDate;
-              }
-              
-              // If all else fails, return a far future date
-              console.warn('Could not parse date:', dateStr);
-              return new Date(9999, 0, 1);
-            } catch (error) {
-              console.error('Error parsing date:', dateStr, error);
-              return new Date(9999, 0, 1);
-            }
-          };
-          
-          const dateA = parseDate(a.begin_date);
-          const dateB = parseDate(b.begin_date);
-          
-          // First, compare dates
-          if (dateA.getTime() !== dateB.getTime()) {
-            return dateA.getTime() - dateB.getTime();
-          }
-          
-          // If dates are equal, compare times (format: HH:MM)
-          const parseTime = (timeStr: string) => {
-            try {
-              const [hours, minutes] = timeStr.split(':').map(Number);
-              if (!isNaN(hours) && !isNaN(minutes)) {
-                return hours * 60 + minutes;
-              }
-              return 0;
-            } catch (error) {
-              console.error('Error parsing time:', timeStr, error);
-              return 0;
-            }
-          };
-          
-          const timeA = parseTime(a.begin_time);
-          const timeB = parseTime(b.begin_time);
-          
-          return timeA - timeB;
-        });
-        
-        setEvents(sortedEvents);
+      // Ensure data is an array
+      if (data && Array.isArray(data.events)) {
+        setEvents(data.events);
+      } else if (Array.isArray(data)) {
+        // Fallback: if server returns array directly
+        setEvents(data);
       } else {
-        console.log("ℹ️ No events in backend");
+        console.error('Events data is not an array:', data);
         setEvents([]);
+        setError('Ungültiges Datenformat vom Server empfangen');
       }
-    } catch (err) {
-      console.error("Error fetching events:", err);
-      setError("Fehler beim Laden der Events. Bitte versuchen Sie es später erneut.");
-      setEvents([]);
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+      setError(error instanceof Error ? error.message : "Failed to fetch events");
+      setEvents([]); // Ensure events is always an array
     } finally {
       setIsLoading(false);
     }

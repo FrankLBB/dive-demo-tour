@@ -90,8 +90,8 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
       }
 
       const data = await response.json();
-      console.log("✅ Events fetched:", data.events.length);
-      setEvents(data.events || []);
+      console.log("✅ Events fetched:", data.events?.length || 0);
+      setEvents(Array.isArray(data.events) ? data.events : []);
     } catch (err) {
       console.error("Error fetching events:", err);
       setError("Fehler beim Laden der Events");

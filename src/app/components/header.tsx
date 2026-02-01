@@ -20,7 +20,32 @@ export function Header() {
   });
 
   useEffect(() => {
-    fetchSettings();
+    const fetchHomepageData = async () => {
+      try {
+        const response = await fetch(
+          `https://${projectId}.supabase.co/functions/v1/make-server-281a395c/homepage`,
+          {
+            headers: {
+              Authorization: `Bearer ${publicAnonKey}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          console.error("Failed to fetch homepage data:", response.status);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.title) setTitle(data.title);
+        if (data.subtitle) setSubtitle(data.subtitle);
+      } catch (error) {
+        console.error("Error fetching homepage data:", error);
+        // Keep default values on error
+      }
+    };
+
+    fetchHomepageData();
   }, []);
 
   const fetchSettings = async () => {

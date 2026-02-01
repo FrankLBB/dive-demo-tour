@@ -17,6 +17,7 @@ import {
   Users,
   Tag,
   Handshake,
+  Activity,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { AdminLogin } from "@/app/components/admin-login";
@@ -26,6 +27,7 @@ import { AdminPartnerManagement } from "@/app/components/admin-partner-managemen
 import { AdminEventModuleManagement } from "@/app/components/admin-event-module-management";
 import { AdminHomepageManagement } from "@/app/components/admin-homepage-management";
 import { AdminRegistrationsManagement } from "@/app/components/admin-registrations-management";
+import { ConnectionDiagnostic } from "@/app/components/connection-diagnostic";
 
 export function Admin() {
   const navigate = useNavigate();
@@ -188,7 +190,7 @@ export function Admin() {
         <div className="max-w-7xl mx-auto">
           {/* Tabs für verschiedene Verwaltungsbereiche */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6 mb-8">
+            <TabsList className="grid w-full grid-cols-7 mb-8">
               <TabsTrigger value="startseite" className="flex items-center gap-2">
                 <Home className="size-4" />
                 <span>Startseite</span>
@@ -212,6 +214,10 @@ export function Admin() {
               <TabsTrigger value="partner" className="flex items-center gap-2">
                 <Handshake className="size-4" />
                 <span>Partner</span>
+              </TabsTrigger>
+              <TabsTrigger value="diagnose" className="flex items-center gap-2">
+                <Activity className="size-4" />
+                <span>Diagnose</span>
               </TabsTrigger>
             </TabsList>
 
@@ -355,6 +361,11 @@ export function Admin() {
             {/* Tab: Anmeldungen */}
             <TabsContent value="anmeldungen" className="space-y-6">
               <AdminRegistrationsManagement />
+            </TabsContent>
+
+            {/* Tab: Diagnose */}
+            <TabsContent value="diagnose" className="space-y-6">
+              <ConnectionDiagnostic />
             </TabsContent>
           </Tabs>
         </div>
