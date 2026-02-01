@@ -30,6 +30,35 @@ import type { EventModule } from "@/app/components/admin-event-module-management
 import type { Brand } from "@/app/components/admin-brand-management";
 import type { Partner } from "@/app/components/admin-partner-management";
 
+// Helper function to format date to German format
+function formatDateToGerman(dateString: string): string {
+  if (!dateString) return "";
+  
+  // Check if it's already in German format (contains letters)
+  if (/[a-zA-ZäöüÄÖÜ]/.test(dateString)) {
+    return dateString;
+  }
+  
+  // Parse ISO date (YYYY-MM-DD)
+  const date = new Date(dateString);
+  
+  // Check if valid date
+  if (isNaN(date.getTime())) {
+    return dateString;
+  }
+  
+  const months = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember"
+  ];
+  
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const year = date.getFullYear();
+  
+  return `${day}. ${month} ${year}`;
+}
+
 export function EventDetail() {
   const { id } = useParams();
   const [event, setEvent] = useState<Event | null>(null);
@@ -274,8 +303,8 @@ export function EventDetail() {
 
   // Format date range display
   const dateDisplay = event?.begin_date === event?.end_date 
-    ? event?.begin_date 
-    : `${event?.begin_date} - ${event?.end_date}`;
+    ? formatDateToGerman(event?.begin_date) 
+    : `${formatDateToGerman(event?.begin_date)} - ${formatDateToGerman(event?.end_date)}`;
   
   // Format time range display
   const timeDisplay = `${event?.begin_time} - ${event?.end_time} Uhr`;
