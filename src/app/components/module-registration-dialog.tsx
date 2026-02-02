@@ -69,12 +69,14 @@ export function ModuleRegistrationDialog({
             ...formData,
             eventId: event.id,
             eventTitle: event.title,
-            eventDate: event.date,
+            eventBeginDate: event.begin_date,
+            eventEndDate: event.end_date,
             eventCity: event.city,
             eventCountry: event.country,
             moduleId: module.id,
             moduleTitle: module.title,
             registrationEmail: module.registrationEmail,
+            registrationEmailAlt: module.registrationEmailAlt,
           }),
         }
       );

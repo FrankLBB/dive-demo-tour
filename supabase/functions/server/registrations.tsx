@@ -1,6 +1,6 @@
 import { Hono } from "npm:hono";
 import * as kv from "./kv_store.tsx";
-import { sendConfirmationEmail, sendAdminNotification, sendModuleRegistrationEmail } from "./email.tsx";
+import { sendConfirmationEmail, sendAdminNotification, sendModuleRegistrationEmail, sendModuleRegistrationToOrganizer } from "./email.tsx";
 
 export const registrationsApp = new Hono();
 
@@ -18,6 +18,7 @@ interface RegistrationData {
   moduleId?: string;
   moduleTitle?: string;
   registrationEmail?: string;
+  registrationEmailAlt?: string;
 }
 
 // POST /make-server-281a395c/registrations - Create a new registration
@@ -53,6 +54,7 @@ registrationsApp.post("/", async (c) => {
       moduleId: body.moduleId || "",
       moduleTitle: body.moduleTitle || "",
       registrationEmail: body.registrationEmail || "",
+      registrationEmailAlt: body.registrationEmailAlt || "",
     };
 
     const timestamp = new Date().toISOString();
@@ -70,72 +72,120 @@ registrationsApp.post("/", async (c) => {
 
     console.log(`Registration created successfully: ${key}`);
 
-    // Send confirmation email to participant (non-blocking)
-    sendConfirmationEmail({
-      to: body.email,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      eventTitle: body.eventTitle,
-      eventDate: body.eventDate || "",
-      eventCity: body.eventCity || "",
-      eventCountry: body.eventCountry || "",
-      registrationId,
-      preferredDate: body.preferredDate,
-      preferredTime: body.preferredTime,
-    }).then((success) => {
-      if (success) {
-        console.log(`Confirmation email sent to ${body.email}`);
-      } else {
-        console.warn(`Failed to send confirmation email to ${body.email}`);
-      }
-    }).catch((error) => {
-      console.error(`Error sending confirmation email: ${error}`);
-    });
+    // Helper function to delay execution (respects Resend rate limit of 2 requests/second)
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Send notification email to admin (non-blocking)
-    sendAdminNotification({
-      registration: fullRegistration,
-      event: {
-        id: body.eventId,
-        title: body.eventTitle,
-        date: body.eventDate || "",
-        city: body.eventCity || "",
-        country: body.eventCountry || "",
-      },
-    }).then((success) => {
-      if (success) {
-        console.log(`Admin notification sent for registration ${registrationId}`);
-      } else {
-        console.warn(`Failed to send admin notification for registration ${registrationId}`);
-      }
-    }).catch((error) => {
-      console.error(`Error sending admin notification: ${error}`);
-    });
+    // Send emails sequentially with delays to avoid rate limiting (2 requests/second = 500ms between requests)
+    (async () => {
+      try {
+        // Check if this is a module registration
+        const isModuleRegistration = body.moduleId && body.moduleTitle;
 
-    // Send module registration email (non-blocking)
-    if (body.moduleId && body.moduleTitle) {
-      sendModuleRegistrationEmail({
-        to: body.email,
-        firstName: body.firstName,
-        lastName: body.lastName,
-        moduleTitle: body.moduleTitle,
-        eventTitle: body.eventTitle,
-        eventDate: body.eventDate || "",
-        eventCity: body.eventCity || "",
-        eventCountry: body.eventCountry || "",
-        registrationId,
-        preferredDate: body.preferredDate,
-        preferredTime: body.preferredTime,
-      }).then((success) => {
-        if (success) {
-          console.log(`Module registration email sent to ${body.email}`);
-        } else {
-          console.warn(`Failed to send module registration email to ${body.email}`);
+        // 1. Send confirmation email to participant (only for non-module registrations)
+        if (!isModuleRegistration) {
+          const confirmationSuccess = await sendConfirmationEmail({
+            to: body.email,
+            firstName: body.firstName,
+            lastName: body.lastName,
+            eventTitle: body.eventTitle,
+            eventBeginDate: body.eventBeginDate || "",
+            eventEndDate: body.eventEndDate || "",
+            eventCity: body.eventCity || "",
+            eventCountry: body.eventCountry || "",
+            registrationId,
+            preferredDate: body.preferredDate,
+            preferredTime: body.preferredTime,
+          });
+          
+          if (confirmationSuccess) {
+            console.log(`✅ Confirmation email sent to ${body.email}`);
+          } else {
+            console.warn(`⚠️ Failed to send confirmation email to ${body.email}`);
+          }
+
+          // Wait 600ms before next email (safely below 2 requests/second)
+          await delay(600);
         }
-      }).catch((error) => {
-        console.error(`Error sending module registration email: ${error}`);
-      });
-    }
+
+        // 2. Send notification email to admin
+        const adminSuccess = await sendAdminNotification({
+          registration: fullRegistration,
+          event: {
+            id: body.eventId,
+            title: body.eventTitle,
+            date: body.eventDate || "",
+            city: body.eventCity || "",
+            country: body.eventCountry || "",
+          },
+        });
+        
+        if (adminSuccess) {
+          console.log(`✅ Admin notification sent for registration ${registrationId}`);
+        } else {
+          console.warn(`⚠️ Failed to send admin notification for registration ${registrationId}`);
+        }
+
+        // 3. Send module registration emails if applicable
+        if (isModuleRegistration) {
+          // Wait 600ms before next email
+          await delay(600);
+
+          const moduleSuccess = await sendModuleRegistrationEmail({
+            to: body.email,
+            firstName: body.firstName,
+            lastName: body.lastName,
+            moduleTitle: body.moduleTitle,
+            eventTitle: body.eventTitle,
+            eventBeginDate: body.eventBeginDate || "",
+            eventEndDate: body.eventEndDate || "",
+            eventCity: body.eventCity || "",
+            eventCountry: body.eventCountry || "",
+            registrationId,
+            preferredDate: body.preferredDate,
+            preferredTime: body.preferredTime,
+          });
+          
+          if (moduleSuccess) {
+            console.log(`✅ Module registration email sent to ${body.email}`);
+          } else {
+            console.warn(`⚠️ Failed to send module registration email to ${body.email}`);
+          }
+
+          // 4. Send module registration email to organizer if specified
+          if (body.registrationEmailAlt) {
+            // Wait 600ms before next email
+            await delay(600);
+
+            const organizerSuccess = await sendModuleRegistrationToOrganizer({
+              to: body.registrationEmailAlt,
+              firstName: body.firstName,
+              lastName: body.lastName,
+              moduleTitle: body.moduleTitle,
+              eventTitle: body.eventTitle,
+              eventBeginDate: body.eventBeginDate || "",
+              eventEndDate: body.eventEndDate || "",
+              eventCity: body.eventCity || "",
+              eventCountry: body.eventCountry || "",
+              registrationId,
+              preferredDate: body.preferredDate,
+              preferredTime: body.preferredTime,
+              phone: body.phone,
+              organization: body.organization,
+              message: body.message,
+              participantEmail: body.email,
+            });
+            
+            if (organizerSuccess) {
+              console.log(`✅ Module registration email sent to organizer ${body.registrationEmailAlt}`);
+            } else {
+              console.warn(`⚠️ Failed to send module registration email to organizer ${body.registrationEmailAlt}`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Error in email sending sequence: ${error}`);
+      }
+    })();
 
     return c.json({
       success: true,
