@@ -1,5 +1,6 @@
 import { Hono } from "npm:hono";
 import * as kv from "./kv_store.tsx";
+import { updateLastChangeDate } from "./homepage.tsx";
 
 export const modulesApp = new Hono();
 
@@ -88,6 +89,7 @@ modulesApp.post("/", async (c) => {
     };
 
     await kv.set(`module:${id}`, module);
+    updateLastChangeDate();
     
     console.log("✅ Module created:", id);
     return c.json({ success: true, module });
@@ -116,6 +118,7 @@ modulesApp.put("/:id", async (c) => {
     };
 
     await kv.set(`module:${id}`, updatedModule);
+    updateLastChangeDate();
     
     console.log("✅ Module updated:", id);
     return c.json({ success: true, module: updatedModule });
@@ -136,6 +139,7 @@ modulesApp.delete("/:id", async (c) => {
     }
 
     await kv.del(`module:${id}`);
+    updateLastChangeDate();
     
     console.log("✅ Module deleted:", id);
     return c.json({ success: true });

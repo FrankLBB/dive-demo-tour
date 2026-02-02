@@ -52,6 +52,7 @@ homepageApp.get("/homepage", async (c) => {
         headerSubtitle: "Test-Events für Taucher",
         backgroundImage: null,
         headerLogo: null,
+        lastChangeDate: "",
       };
 
       console.log("✅ Returning default homepage settings");
@@ -72,7 +73,7 @@ homepageApp.put("/homepage", async (c) => {
     console.log("📤 PUT /homepage - Updating homepage settings");
 
     const body = await c.req.json();
-    const { logo, headerTitle, headerSubtitle, backgroundImage, headerLogo } = body;
+    const { logo, headerTitle, headerSubtitle, backgroundImage, headerLogo, lastChangeDate } = body;
 
     // Validate required fields
     if (!headerTitle || !headerSubtitle) {
@@ -85,6 +86,7 @@ homepageApp.put("/homepage", async (c) => {
       headerSubtitle,
       backgroundImage: backgroundImage || null,
       headerLogo: headerLogo || null,
+      lastChangeDate: lastChangeDate || "",
       updatedAt: new Date().toISOString(),
     };
 
@@ -277,5 +279,39 @@ homepageApp.post("/homepage/upload-header-logo", async (c) => {
     return c.json({ error: "Failed to upload header logo" }, 500);
   }
 });
+
+// Helper function to update last change date
+export async function updateLastChangeDate() {
+  try {
+    console.log("📅 Updating last change date in homepage settings");
+    
+    const settings = await kv.get("homepage_settings");
+    
+    if (!settings) {
+      console.log("⚠️ Homepage settings not found, skipping last change date update");
+      return;
+    }
+    
+    // Get current date in YYYY-MM-DD format
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}-${month}-${day}`;
+    
+    const updatedSettings = {
+      ...settings,
+      lastChangeDate: dateString,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    await kv.set("homepage_settings", updatedSettings);
+    
+    console.log(`✅ Last change date updated to: ${dateString}`);
+  } catch (error) {
+    console.error("❌ Error updating last change date:", error);
+    // Don't throw error, just log it
+  }
+}
 
 export { homepageApp };

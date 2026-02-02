@@ -10,6 +10,7 @@ import {
   Image as ImageIcon,
   Type,
   AlertCircle,
+  Calendar,
 } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 
@@ -19,6 +20,7 @@ interface HomepageSettings {
   headerSubtitle: string;
   backgroundImage: string | null;
   headerLogo: string | null;
+  lastChangeDate: string;
 }
 
 export function AdminHomepageManagement() {
@@ -28,6 +30,7 @@ export function AdminHomepageManagement() {
     headerSubtitle: "",
     backgroundImage: null,
     headerLogo: null,
+    lastChangeDate: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +38,35 @@ export function AdminHomepageManagement() {
   const [logoUploadProgress, setLogoUploadProgress] = useState(false);
   const [backgroundUploadProgress, setBackgroundUploadProgress] = useState(false);
   const [headerLogoUploadProgress, setHeaderLogoUploadProgress] = useState(false);
+
+  // Helper functions to convert between YYYY-MM-DD and DD.MM.YYYY
+  const formatDateToGerman = (dateString: string): string => {
+    if (!dateString) return "";
+    
+    // If already in DD.MM.YYYY format, return as is
+    if (dateString.includes(".")) return dateString;
+    
+    // Convert from YYYY-MM-DD to DD.MM.YYYY
+    const [year, month, day] = dateString.split("-");
+    if (year && month && day) {
+      return `${day}.${month}.${year}`;
+    }
+    return dateString;
+  };
+
+  const formatDateToISO = (germanDate: string): string => {
+    if (!germanDate) return "";
+    
+    // If already in YYYY-MM-DD format, return as is
+    if (germanDate.includes("-")) return germanDate;
+    
+    // Convert from DD.MM.YYYY to YYYY-MM-DD
+    const [day, month, year] = germanDate.split(".");
+    if (year && month && day) {
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+    return germanDate;
+  };
 
   useEffect(() => {
     fetchSettings();
@@ -299,6 +331,41 @@ export function AdminHomepageManagement() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Last Change Date */}
+          <div>
+            <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Calendar className="size-5" />
+              Datum der letzten Änderung
+            </h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Datum (DD.MM.YYYY) *
+                </label>
+                <Input
+                  type="text"
+                  value={formatDateToGerman(settings.lastChangeDate)}
+                  onChange={(e) => {
+                    const germanDate = e.target.value;
+                    // Allow only numbers and dots
+                    if (!/^[\d.]*$/.test(germanDate)) return;
+                    
+                    setSettings((prev) => ({
+                      ...prev,
+                      lastChangeDate: formatDateToISO(germanDate),
+                    }));
+                  }}
+                  required
+                  placeholder="z.B. 02.02.2026"
+                  maxLength={10}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Dieses Datum wird automatisch aktualisiert, wenn ein Event oder Event-Modul gespeichert wird.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Logo Upload */}
           <div>
             <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">

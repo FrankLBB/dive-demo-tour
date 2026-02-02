@@ -6,10 +6,60 @@ import { projectId, publicAnonKey } from "/utils/supabase/info";
 import type { Event } from "@/app/data/events";
 import React from "react";
 
+interface HomepageSettings {
+  logo: string | null;
+  headerTitle: string;
+  headerSubtitle: string;
+  backgroundImage: string | null;
+  headerLogo: string | null;
+  lastChangeDate: string;
+}
+
 export function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastChangeDate, setLastChangeDate] = useState<string>("");
+
+  // Helper function to format date from YYYY-MM-DD to DD.MM.YYYY
+  const formatDateToGerman = (dateString: string): string => {
+    if (!dateString) return "";
+    
+    // If already in DD.MM.YYYY format, return as is
+    if (dateString.includes(".")) return dateString;
+    
+    // Convert from YYYY-MM-DD to DD.MM.YYYY
+    const [year, month, day] = dateString.split("-");
+    if (year && month && day) {
+      return `${day}.${month}.${year}`;
+    }
+    return dateString;
+  };
+
+  const fetchHomepageSettings = async () => {
+    try {
+      const response = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/make-server-281a395c/homepage`,
+        {
+          headers: {
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const settings: HomepageSettings = data.settings;
+        if (settings.lastChangeDate) {
+          setLastChangeDate(settings.lastChangeDate);
+          console.log("✅ Last change date loaded:", settings.lastChangeDate);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch homepage settings:", error);
+      // Don't show error to user, just skip the date display
+    }
+  };
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -63,6 +113,7 @@ export function EventList() {
 
   useEffect(() => {
     fetchEvents();
+    fetchHomepageSettings();
   }, []);
 
   if (isLoading) {
@@ -70,7 +121,10 @@ export function EventList() {
       <section className="container mx-auto px-4 py-12">
         <div className="flex flex-col items-center justify-center gap-3 mb-8">
           <div className="bg-gray-800/40 backdrop-blur-sm rounded-lg px-8 py-4">
-            <h2 className="text-4xl text-white text-center">Event-Termine</h2>
+            <h2 className="text-4xl text-white text-center">
+              Event-Termine
+              {lastChangeDate && `, Stand ${formatDateToGerman(lastChangeDate)}`}
+            </h2>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center py-12">
@@ -86,7 +140,10 @@ export function EventList() {
       <div className="mb-8">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="bg-gray-800/40 backdrop-blur-sm rounded-lg px-8 py-4">
-            <h2 className="text-4xl text-white text-center mb-0">Event-Termine</h2>
+            <h2 className="text-4xl text-white text-center mb-0">
+              Event-Termine
+              {lastChangeDate && `, Stand ${formatDateToGerman(lastChangeDate)}`}
+            </h2>
           </div>
           
           {/* Event Count Badge */}

@@ -1,6 +1,7 @@
 import { Hono } from "npm:hono";
 import * as kv from "./kv_store.tsx";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { updateLastChangeDate } from "./homepage.tsx";
 
 const eventsApp = new Hono();
 
@@ -246,6 +247,9 @@ eventsApp.post("/", async (c) => {
       console.error("❌ Verification failed: Event not found in KV store after save");
     }
     
+    // Update last change date for homepage
+    await updateLastChangeDate();
+    
     return c.json({
       success: true,
       event,
@@ -320,6 +324,9 @@ eventsApp.put("/:id", async (c) => {
     await kv.set(`event:${id}`, updatedEvent);
     console.log(`✅ Event updated: ${id}`);
     
+    // Update last change date for homepage
+    await updateLastChangeDate();
+    
     return c.json({
       success: true,
       event: updatedEvent,
@@ -361,6 +368,9 @@ eventsApp.delete("/:id", async (c) => {
     // Delete from KV store
     await kv.del(`event:${id}`);
     console.log(`✅ Event deleted: ${id}`);
+    
+    // Update last change date for homepage
+    await updateLastChangeDate();
     
     return c.json({
       success: true,

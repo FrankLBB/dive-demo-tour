@@ -39,18 +39,15 @@ function formatDateToGerman(dateString: string): string {
 }
 
 export function EventCard({ event }: EventCardProps) {
-  // Format date range display
-  const dateDisplay = event.begin_date === event.end_date 
-    ? formatDateToGerman(event.begin_date)
-    : `${formatDateToGerman(event.begin_date)} - ${formatDateToGerman(event.end_date)}`;
-  
-  // Format time range display
-  const timeDisplay = `${event.begin_time} - ${event.end_time} Uhr`;
-
   // Check event status
   const isToday = isEventToday(event.begin_date);
   const isSoon = !isToday && isEventSoon(event.begin_date);
   const isFinished = isEventFinished(event.end_date);
+
+  // Format date and time display like in event detail sidebar
+  const dateTimeDisplay = event.begin_date === event.end_date 
+    ? `${formatDateToGerman(event.begin_date)}, ${event.begin_time} Uhr bis ${event.end_time} Uhr`
+    : `${formatDateToGerman(event.begin_date)}, ${event.begin_time} Uhr bis ${formatDateToGerman(event.end_date)}, ${event.end_time} Uhr`;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -86,8 +83,8 @@ export function EventCard({ event }: EventCardProps) {
           </h3>
         </Link>
         <div className={`flex flex-col gap-2 ${isFinished ? 'text-gray-400' : 'text-gray-600'}`}>
-          <div className="flex items-center gap-2">
-            <Calendar className="size-4" />
+          <div className="flex items-start gap-2">
+            <Calendar className="size-4 mt-1 flex-shrink-0" />
             <span className={`font-semibold ${
               isToday 
                 ? 'text-green-600' 
@@ -97,12 +94,18 @@ export function EventCard({ event }: EventCardProps) {
                 ? 'text-gray-400' 
                 : ''
             }`}>
-              {dateDisplay}
+              {event.begin_date === event.end_date ? (
+                <>
+                  {formatDateToGerman(event.begin_date)}, {event.begin_time} Uhr bis<br />
+                  {event.end_time} Uhr
+                </>
+              ) : (
+                <>
+                  {formatDateToGerman(event.begin_date)}, {event.begin_time} Uhr bis<br />
+                  {formatDateToGerman(event.end_date)}, {event.end_time} Uhr
+                </>
+              )}
             </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="size-4" />
-            <span>{timeDisplay}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="size-4" />
