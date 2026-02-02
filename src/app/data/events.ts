@@ -5,6 +5,8 @@ export interface Event {
   begin_time: string;
   end_date: string;
   end_time: string;
+  daily_start_time?: string;
+  daily_end_time?: string;
   location: string;
   location_URL: string;
   location_email: string;

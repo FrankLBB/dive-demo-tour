@@ -1,7 +1,7 @@
 
-  # Event Schedule Website
+  # Dive Demo Tour
 
-  This is a code bundle for Event Schedule Website. The original project is available at https://www.figma.com/design/HRDSoOs5qo9zoD15gNb44V/Event-Schedule-Website.
+  This is a code bundle for Dive Demo Tour. The original project is available at https://www.figma.com/design/HRDSoOs5qo9zoD15gNb44V/Dive-Demo-Tour.
 
   ## Running the code
 

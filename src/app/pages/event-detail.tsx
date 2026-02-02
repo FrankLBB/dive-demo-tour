@@ -232,6 +232,13 @@ export function EventDetail() {
     return brand?.logo || null;
   };
 
+  // Helper function to get brand URL
+  const getBrandUrl = (brandId: string | null): string | null => {
+    if (!brandId) return null;
+    const brand = brands.find((b) => b.id === brandId);
+    return brand?.url || null;
+  };
+
   // Helper function to check if module date is in the past
   const isModuleDatePast = (module: EventModule): boolean => {
     // If module is daily, it's never considered past based on module date
@@ -469,6 +476,7 @@ export function EventDetail() {
                   {filteredModules.map((module) => {
                     const brandName = getBrandName(module.brandId);
                     const brandLogo = getBrandLogo(module.brandId);
+                    const brandUrl = getBrandUrl(module.brandId);
                     const partner = getPartner(module.partnerId);
                     
                     return (
@@ -540,6 +548,26 @@ export function EventDetail() {
                                 </p>
                               </div>
                             </div>
+
+                            {/* Brand URL */}
+                            {brandUrl && brandUrl.trim() !== '' && (
+                              <div className="flex items-start gap-2">
+                                <Globe className={`size-4 mt-0.5 ${isFinished ? 'text-gray-400' : 'text-gray-600'}`} />
+                                <div>
+                                  <p className={`text-xs ${isFinished ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    Website der Marke
+                                  </p>
+                                  <a
+                                    href={brandUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`text-sm font-medium hover:underline break-all ${isFinished ? 'text-gray-500' : 'text-blue-600 hover:text-blue-700'}`}
+                                  >
+                                    {brandUrl}
+                                  </a>
+                                </div>
+                              </div>
+                            )}
 
                             {/* Max Participants */}
                             {module.maxParticipants && module.maxParticipants > 0 && (
@@ -705,7 +733,7 @@ export function EventDetail() {
                       <p className={`text-sm ${
                         isFinished ? 'text-gray-400' : 'text-gray-500'
                       }`}>
-                        Datum
+                        Beginn und Ende des Events
                       </p>
                       <p className={`text-lg font-semibold ${
                         isToday 
@@ -716,13 +744,14 @@ export function EventDetail() {
                           ? 'text-gray-500'
                           : ''
                       }`}>
-                        {dateDisplay}
+                        {formatDateToGerman(event.begin_date)}, {event.begin_time} Uhr bis<br />
+                        {formatDateToGerman(event.end_date)}, {event.end_time} Uhr
                       </p>
                     </div>
                   </div>
                 )}
-
-                {(event.begin_time || event.end_time) && (
+                
+                {(event.daily_start_time || event.daily_end_time) && (
                   <div className="flex items-start gap-3">
                     <Clock className={`size-5 mt-1 ${
                       isFinished ? 'text-gray-400' : 'text-gray-600'
@@ -731,12 +760,12 @@ export function EventDetail() {
                       <p className={`text-sm ${
                         isFinished ? 'text-gray-400' : 'text-gray-500'
                       }`}>
-                        Uhrzeit
+                        Öffnungszeit täglich
                       </p>
                       <p className={`text-lg ${
                         isFinished ? 'text-gray-500' : ''
                       }`}>
-                        {timeDisplay}
+                        {event.daily_start_time} Uhr bis {event.daily_end_time} Uhr
                       </p>
                     </div>
                   </div>

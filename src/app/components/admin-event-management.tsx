@@ -86,6 +86,8 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
     begin_time: "",
     end_date: "",
     end_time: "",
+    daily_start_time: "",
+    daily_end_time: "",
     location: "",
     location_URL: "",
     location_email: "",
@@ -268,6 +270,8 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
       begin_time: event.begin_time,
       end_date: event.end_date,
       end_time: event.end_time,
+      daily_start_time: event.daily_start_time || "",
+      daily_end_time: event.daily_end_time || "",
       location: event.location,
       location_URL: event.location_URL || "",
       location_email: event.location_email || "",
@@ -292,6 +296,8 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
       begin_time: "",
       end_date: "",
       end_time: "",
+      daily_start_time: "",
+      daily_end_time: "",
       location: "",
       location_URL: "",
       location_email: "",
@@ -822,6 +828,34 @@ export function AdminEventManagement({ onEventChange, onModuleEdit }: AdminEvent
                           setFormData({ ...formData, end_time: e.target.value })
                         }
                         required
+                        placeholder="z.B. 18:00"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Tägliche Startzeit
+                      </label>
+                      <Input
+                        type="time"
+                        value={formData.daily_start_time}
+                        onChange={(e) =>
+                          setFormData({ ...formData, daily_start_time: e.target.value })
+                        }
+                        placeholder="z.B. 09:00"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Tägliche Endzeit
+                      </label>
+                      <Input
+                        type="time"
+                        value={formData.daily_end_time}
+                        onChange={(e) =>
+                          setFormData({ ...formData, daily_end_time: e.target.value })
+                        }
                         placeholder="z.B. 18:00"
                       />
                     </div>
